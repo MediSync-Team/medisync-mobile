@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useMemo, useCallback, ReactNode } from 'react';
+import * as Localization from 'expo-localization';
 import { translations, Lang } from './translations';
 
 interface LanguageContextType {
@@ -10,7 +11,8 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | null>(null);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>('es');
+  const deviceLang = Localization.getLocales()[0]?.languageCode === 'en' ? 'en' : 'es';
+  const [lang, setLangState] = useState<Lang>(deviceLang);
 
   const setLang = useCallback((newLang: Lang) => {
     setLangState(newLang);
