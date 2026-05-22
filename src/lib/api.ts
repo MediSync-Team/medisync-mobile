@@ -17,6 +17,8 @@ import type {
   PagoPreferenciaResponse,
   InAppNotification,
   StatsResponse,
+  PacienteStats,
+  ListaEsperaItem,
 } from '../api/types';
 
 export type * from '../api/types';
@@ -150,5 +152,15 @@ export const api = {
   },
   obrasSociales: {
     getAll: () => fetchApi<string[]>('/obras-sociales'),
+  },
+  pacientes: {
+    getMisStats: () => fetchApi<PacienteStats>('/pacientes/mis-stats'),
+    getMisRecetas: () =>
+      fetchApi<{ id: string; turnoId: string; fechaHora: string; receta: { diagnostico: string; medicamentos?: string | null; indicaciones: string }; profesional: { nombre: string; apellido: string; especialidad: string } }[]>('/pacientes/mis-recetas'),
+    getMisCertificados: () => fetchApi<{ id: string; turnoId: string; fechaHora: string; certificado: { id: string; tipo: string; emitidaAt: string }; profesional: { nombre: string; apellido: string; especialidad?: { nombre: string } | string } }[]>('/pacientes/mis-certificados'),
+  },
+  listaEspera: {
+    misSuscripciones: () => fetchApi<ListaEsperaItem[]>('/lista-espera/mis-suscripciones'),
+    cancelar: (id: string) => fetchApi<void>(`/lista-espera/${id}`, { method: 'DELETE' }),
   },
 };
