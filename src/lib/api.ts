@@ -7,6 +7,7 @@ import type {
   Especialidad,
   ProfesionalesPaginatedResponse,
   Profesional,
+  Disponibilidad,
   Slot,
   TurnosPaginatedResponse,
   Turno,
@@ -19,6 +20,13 @@ import type {
   StatsResponse,
   PacienteStats,
   ListaEsperaItem,
+  BloqueoDisponibilidad,
+  SuscripcionEstado,
+  Resena,
+  ResenasStats,
+  Cupon,
+  TipoDescuento,
+  Pago,
 } from '../api/types';
 
 export type * from '../api/types';
@@ -120,6 +128,10 @@ export const api = {
     getById: (id: string) => fetchApi<Profesional>(`/profesionales/${id}`),
     getSlots: (id: string, fecha: string, modalidad: 'PRESENCIAL' | 'VIRTUAL') =>
       fetchApi<Slot[]>(`/profesionales/${id}/slots-disponibles${query({ fecha, modalidad })}`),
+    crearDisponibilidad: (id: string, data: { diaSemana: number; horaInicio: string; horaFin: string; modalidad: 'PRESENCIAL' | 'VIRTUAL' | 'AMBOS'; lugarAtencion?: string }) =>
+      fetchApi<Disponibilidad>(`/profesionales/${id}/disponibilidad`, { method: 'POST', body: JSON.stringify(data) }),
+    eliminarDisponibilidad: (id: string, dispId: string) =>
+      fetchApi<void>(`/profesionales/${id}/disponibilidad/${dispId}`, { method: 'DELETE' }),
   },
   turnos: {
     getMisTurnos: (params?: { tipo?: 'proximos' | 'pasados'; estado?: string; page?: number; limit?: number }) =>
@@ -147,9 +159,6 @@ export const api = {
     markRead: (id: string) => fetchApi<void>(`/notifications/${id}/read`, { method: 'PATCH' }),
     markAllRead: () => fetchApi<void>('/notifications/read-all', { method: 'PATCH' }),
   },
-  profesional: {
-    getStats: () => fetchApi<StatsResponse>('/profesional/stats'),
-  },
   obrasSociales: {
     getAll: () => fetchApi<string[]>('/obras-sociales'),
   },
@@ -162,5 +171,48 @@ export const api = {
   listaEspera: {
     misSuscripciones: () => fetchApi<ListaEsperaItem[]>('/lista-espera/mis-suscripciones'),
     cancelar: (id: string) => fetchApi<void>(`/lista-espera/${id}`, { method: 'DELETE' }),
+  },
+
+  bloqueos: {
+    getMisBloqueos: () => fetchApi<BloqueoDisponibilidad[]>('/bloqueos'),
+    crear: (data: { fechaInicio: string; fechaFin: string; horaInicio?: string; horaFin?: string; motivo?: string }) =>
+      fetchApi<BloqueoDisponibilidad>('/bloqueos', { method: 'POST', body: JSON.stringify(data) }),
+    eliminar: (id: string) => fetchApi<void>(`/bloqueos/${id}`, { method: 'DELETE' }),
+  },
+
+  profesional: {
+    updatePerfil: (id: string, data: Partial<Profesional>) =>
+      fetchApi<Profesional>(`/profesionales/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    getStats: () => fetchApi<StatsResponse>('/profesional/stats'),
+    getPagos: (params?: { desde?: string; hasta?: string; estado?: string; page?: number; limit?: number }) =>
+      fetchApi<{ pagos: Pago[]; totales: { bruto: number; neto: number; pendiente: number; aprobados: number; pendientes: number }; mesesResumen: { mes: string; bruto: number; neto: number; cantidad: number }[] }>(
+        `/profesional/pagos${query(params ?? {})}`
+      ),
+    getMisObrasSociales: () => fetchApi<{ obrasSociales: string[] }>('/profesional/obras-sociales'),
+  },
+
+  suscripciones: {
+    estado: () => fetchApi<SuscripcionEstado>('/suscripciones/estado'),
+    iniciar: () => fetchApi<{ initPoint: string }>('/suscripciones/iniciar', { method: 'POST' }),
+    cancelar: () => fetchApi<{ cancelada: boolean }>('/suscripciones/cancelar', { method: 'POST' }),
+  },
+
+  cupones: {
+    listar: () => fetchApi<Cupon[]>('/cupones'),
+    crear: (data: { codigo: string; tipo: TipoDescuento; valor: number; descripcion?: string; maxUsos?: number; expiresAt?: string }) =>
+      fetchApi<Cupon>('/cupones', { method: 'POST', body: JSON.stringify(data) }),
+    actualizar: (id: string, data: Partial<Cupon>) =>
+      fetchApi<Cupon>(`/cupones/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    eliminar: (id: string) => fetchApi<void>(`/cupones/${id}`, { method: 'DELETE' }),
+  },
+
+  resenas: {
+    getMisResenas: (params?: { page?: number; limit?: number; rating?: number }) =>
+      fetchApi<{ resenas: Resena[]; stats: ResenasStats; pagination: { page: number; totalPages: number; total: number } }>(
+        '/resenas/mis-resenas' + query(params ?? {})
+      ),
+    responder: (id: string, respuesta: string) =>
+      fetchApi<Resena>(`/resenas/${id}/respuesta`, { method: 'PATCH', body: JSON.stringify({ respuesta }) }),
+    borrarRespuesta: (id: string) => fetchApi<Resena>(`/resenas/${id}/respuesta`, { method: 'DELETE' }),
   },
 };

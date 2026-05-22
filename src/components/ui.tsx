@@ -1,5 +1,6 @@
 import { ActivityIndicator, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useAuth } from '../lib/auth-context';
 import { useNotifications } from '../lib/notifications-context';
 import { useTheme } from '../contexts/ThemeContext';
 import { colors as lightColors, spacing, fontSize, borderRadius } from '../theme';
@@ -103,8 +104,10 @@ export function TurnoCard({ turno, onPress }: { turno: Turno; onPress: () => voi
 
 export function AppHeader({ showBack = false, simple = false }: { showBack?: boolean; simple?: boolean }) {
   const router = useRouter();
+  const { user } = useAuth();
   const { unread } = useNotifications();
   const { colors } = useTheme();
+  const profileRoute = user?.rol === 'PROFESIONAL' ? '/dashboard/profesional/perfil' : '/dashboard/paciente/perfil';
 
   return (
     <View style={[{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md, backgroundColor: 'transparent' }]}>
@@ -127,7 +130,7 @@ export function AppHeader({ showBack = false, simple = false }: { showBack?: boo
             ) : null}
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => router.push('/dashboard/paciente/perfil')}
+            onPress={() => router.push(profileRoute)}
             style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: colors.muted, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: colors.border }}
           >
             <Text style={{ fontSize: fontSize.lg }}>👤</Text>
