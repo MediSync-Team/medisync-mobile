@@ -1,22 +1,26 @@
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { AppHeader, EmptyState, ErrorNotice, SecondaryButton, Spinner, TurnoCard, sharedStyles } from '../../../../src/components/ui';
+import { Alert, RefreshControl, ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { AppHeader, EmptyState, ErrorNotice, SecondaryButton, Spinner, TurnoCard, getSharedStyles } from '../../../../src/components/ui';
 import { api, type Turno, type PacienteStats, type ListaEsperaItem } from '../../../../src/lib/api';
 import { useAuth } from '../../../../src/lib/auth-context';
-import { colors, spacing, borderRadius, fontSize } from '../../../../src/theme';
+import { spacing, borderRadius, fontSize } from '../../../../src/theme';
+import { useTheme } from '../../../../src/contexts/ThemeContext';
 
-type Tab = 'resumen' | 'proximos' | 'pasados' | 'lista';
+type Tab = 'resumen' | 'proximos' | 'pasados' | 'lista' | 'opciones';
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'resumen', label: 'Resumen' },
   { key: 'proximos', label: 'Próximos' },
   { key: 'pasados', label: 'Pasados' },
   { key: 'lista', label: 'Lista' },
+  { key: 'opciones', label: 'Opciones' },
 ];
 
 export default function PerfilPaciente() {
   const { user, logout } = useAuth();
+  const { isDark, toggleTheme, colors } = useTheme();
+  const s = getSharedStyles(colors);
   const [tab, setTab] = useState<Tab>('resumen');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -142,7 +146,7 @@ export default function PerfilPaciente() {
           <View key={turno.id} style={{ gap: spacing.sm }}>
             <TurnoCard turno={turno} onPress={() => router.push(`/turno/${turno.id}`)} />
             {isProximos && turno.estado !== 'CANCELADO' ? (
-              <View style={sharedStyles.row}>
+              <View style={s.row}>
                 <SecondaryButton title="Preconsulta" onPress={() => router.push(`/preconsulta/${turno.id}`)} />
                 <SecondaryButton title="Cancelar" onPress={() => cancelTurno(turno)} />
               </View>
@@ -179,17 +183,37 @@ export default function PerfilPaciente() {
     );
   }
 
+  function renderOpciones() {
+    return (
+      <View style={{ gap: spacing.md }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.md, borderRadius: borderRadius.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}>
+          <View>
+            <Text style={{ fontSize: fontSize.md, fontWeight: '600', color: colors.text }}>Modo oscuro</Text>
+            <Text style={{ fontSize: fontSize.sm, color: colors.muted }}>{isDark ? 'Activado' : 'Desactivado'}</Text>
+          </View>
+          <Switch
+            value={isDark}
+            onValueChange={toggleTheme}
+            trackColor={{ false: colors.border, true: colors.primary }}
+            thumbColor={isDark ? colors.text : colors.muted}
+          />
+        </View>
+        <SecondaryButton title="Cerrar sesión" onPress={logout} />
+      </View>
+    );
+  }
+
   return (
     <ScrollView
-      style={sharedStyles.screen}
-      contentContainerStyle={sharedStyles.content}
+      style={s.screen}
+      contentContainerStyle={s.content}
       refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}
     >
       <AppHeader showBack simple />
-      <Text style={sharedStyles.title}>Hola, {user?.paciente?.nombre || 'paciente'}</Text>
-      <Text style={[sharedStyles.subtitle, { marginBottom: spacing.sm }]}>{user?.email}</Text>
+      <Text style={s.title}>Hola, {user?.paciente?.nombre || 'paciente'}</Text>
+      <Text style={[s.subtitle, { marginBottom: spacing.sm }]}>{user?.email}</Text>
 
-      <View style={sharedStyles.row}>
+      <View style={s.row}>
         {TABS.map((t) => (
           <TouchableOpacity
             key={t.key}
@@ -216,10 +240,7 @@ export default function PerfilPaciente() {
       {tab === 'proximos' ? renderTurnos(turnos, true) : null}
       {tab === 'pasados' ? renderTurnos(historial, false) : null}
       {tab === 'lista' ? renderListaEspera() : null}
-
-      <View style={{ marginTop: spacing.lg }}>
-        <SecondaryButton title="Cerrar sesión" onPress={logout} />
-      </View>
+      {tab === 'opciones' ? renderOpciones() : null}
     </ScrollView>
   );
 }

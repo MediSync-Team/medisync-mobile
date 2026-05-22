@@ -2,10 +2,11 @@ import { Redirect, Stack } from 'expo-router';
 import { View } from 'react-native';
 import { Spinner } from '../../src/components/ui';
 import { useAuth } from '../../src/lib/auth-context';
-import { colors } from '../../src/theme';
+import { useTheme } from '../../src/contexts/ThemeContext';
 
 export default function AppLayout() {
   const { isAuthenticated, isLoading } = useAuth();
+  const { colors } = useTheme();
 
   if (isLoading) {
     return (
@@ -17,5 +18,9 @@ export default function AppLayout() {
 
   if (!isAuthenticated) return <Redirect href="/login" />;
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <Stack screenOptions={{ headerShown: false }} />
+    </View>
+  );
 }

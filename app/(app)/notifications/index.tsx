@@ -1,19 +1,22 @@
 import { router } from 'expo-router';
 import { RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { AppHeader, EmptyState, SecondaryButton, Spinner, sharedStyles } from '../../../src/components/ui';
+import { AppHeader, EmptyState, SecondaryButton, Spinner, getSharedStyles } from '../../../src/components/ui';
 import { useNotifications } from '../../../src/lib/notifications-context';
-import { colors, spacing, borderRadius } from '../../../src/theme';
+import { spacing, borderRadius } from '../../../src/theme';
+import { useTheme } from '../../../src/contexts/ThemeContext';
 
 export default function NotificationsScreen() {
   const { notifications, unread, isLoading, refresh, markRead, markAllRead } = useNotifications();
+  const { colors } = useTheme();
+  const s = getSharedStyles(colors);
 
   return (
-    <ScrollView style={sharedStyles.screen} contentContainerStyle={sharedStyles.content} refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refresh} />}>
+    <ScrollView style={s.screen} contentContainerStyle={s.content} refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refresh} />}>
       <AppHeader showBack simple />
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: spacing.md }}>
         <View style={{ flex: 1 }}>
-          <Text style={sharedStyles.title}>Notificaciones</Text>
-          <Text style={sharedStyles.subtitle}>{unread} sin leer</Text>
+          <Text style={s.title}>Notificaciones</Text>
+          <Text style={s.subtitle}>{unread} sin leer</Text>
         </View>
         <SecondaryButton title="Marcar todas" onPress={markAllRead} />
       </View>

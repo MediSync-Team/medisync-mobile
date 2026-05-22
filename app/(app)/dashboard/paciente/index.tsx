@@ -1,11 +1,14 @@
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, RefreshControl, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { AppHeader, EmptyState, ErrorNotice, ProfesionalCard, SecondaryButton, Spinner, sharedStyles } from '../../../../src/components/ui';
+import { AppHeader, EmptyState, ErrorNotice, ProfesionalCard, SecondaryButton, Spinner, getSharedStyles } from '../../../../src/components/ui';
 import { api, type Especialidad, type Profesional } from '../../../../src/lib/api';
-import { colors, spacing, borderRadius, fontSize } from '../../../../src/theme';
+import { spacing, borderRadius, fontSize } from '../../../../src/theme';
+import { useTheme } from '../../../../src/contexts/ThemeContext';
 
 export default function BuscarProfesionales() {
+  const { colors } = useTheme();
+  const s = getSharedStyles(colors);
   const [especialidades, setEspecialidades] = useState<Especialidad[]>([]);
   const [obrasSociales, setObrasSociales] = useState<string[]>([]);
   const [profesionales, setProfesionales] = useState<Profesional[]>([]);
@@ -46,10 +49,10 @@ export default function BuscarProfesionales() {
   }
 
   return (
-    <KeyboardAvoidingView style={sharedStyles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={s.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
     <ScrollView
-      style={sharedStyles.screen}
-      contentContainerStyle={sharedStyles.content}
+      style={s.screen}
+      contentContainerStyle={s.content}
       refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}
       keyboardShouldPersistTaps="handled"
     >
@@ -61,7 +64,7 @@ export default function BuscarProfesionales() {
       <View style={{ gap: spacing.md }}>
         <TouchableOpacity
           onPress={() => setShowObraSocial(true)}
-          style={[sharedStyles.input, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}
+          style={[s.input, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}
         >
           <Text style={{ color: filters.obraSocial ? colors.text : colors.textSecondary, flex: 1 }}>
             {filters.obraSocial || 'Obra social'}
@@ -69,8 +72,8 @@ export default function BuscarProfesionales() {
           <Text style={{ color: colors.textSecondary }}>▼</Text>
         </TouchableOpacity>
 
-        <View style={sharedStyles.row}>
-          <TextInput style={[sharedStyles.input, { flex: 1 }]} placeholder="Precio máx." keyboardType="numeric" value={filters.precioMax} onChangeText={(text) => setFilters((f) => ({ ...f, precioMax: text.replace(/[^0-9]/g, '') }))} />
+        <View style={s.row}>
+          <TextInput style={[s.input, { flex: 1 }]} placeholder="Precio máx." keyboardType="numeric" value={filters.precioMax} onChangeText={(text) => setFilters((f) => ({ ...f, precioMax: text.replace(/[^0-9]/g, '') }))} />
           <TouchableOpacity onPress={() => setFilters((f) => ({ ...f, modalidad: f.modalidad === 'VIRTUAL' ? 'PRESENCIAL' : 'VIRTUAL' }))} style={{ flex: 1, padding: spacing.md, borderRadius: borderRadius.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}>
             <Text style={{ color: colors.text, textAlign: 'center' }}>{filters.modalidad || 'Modalidad'}</Text>
           </TouchableOpacity>
@@ -89,7 +92,7 @@ export default function BuscarProfesionales() {
           <ProfesionalCard key={profesional.id} profesional={profesional} onPress={() => router.push(`/profesional/${profesional.id}`)} />
         ))}
         {!profesionales.length ? <EmptyState title="Sin profesionales" subtitle="Probá cambiar los filtros." /> : null}
-        <View style={sharedStyles.row}>
+        <View style={s.row}>
           <SecondaryButton title="Anterior" onPress={() => setPage((p) => Math.max(1, p - 1))} />
           <Text style={{ color: colors.text, flex: 1, textAlign: 'center' }}>{page} / {totalPages}</Text>
           <SecondaryButton title="Siguiente" onPress={() => setPage((p) => Math.min(totalPages, p + 1))} />
@@ -100,7 +103,7 @@ export default function BuscarProfesionales() {
         <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' }}>
           <View style={{ backgroundColor: colors.surface, borderTopLeftRadius: borderRadius.xl, borderTopRightRadius: borderRadius.xl, maxHeight: '70%', padding: spacing.lg }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md }}>
-              <Text style={sharedStyles.title}>Obra social</Text>
+              <Text style={s.title}>Obra social</Text>
               <TouchableOpacity onPress={() => setShowObraSocial(false)}>
                 <Text style={{ color: colors.primary, fontWeight: '700', fontSize: fontSize.md }}>Cerrar</Text>
               </TouchableOpacity>
