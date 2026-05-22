@@ -1,4 +1,4 @@
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors, spacing, fontSize, borderRadius } from '../theme';
 import { estadoColor, fullName, turnoLocation } from '../lib/utils';
 import { formatDateTime } from '../lib/date';
@@ -86,7 +86,7 @@ export function TurnoCard({ turno, onPress }: { turno: Turno; onPress: () => voi
 
 export const sharedStyles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: spacing.md, gap: spacing.md },
+  content: { padding: spacing.md, paddingTop: Platform.OS === 'ios' ? spacing.xxl : spacing.lg, gap: spacing.md },
   title: { fontSize: fontSize.xxl, fontWeight: '700', color: colors.text },
   subtitle: { fontSize: fontSize.md, color: colors.textSecondary },
   input: {

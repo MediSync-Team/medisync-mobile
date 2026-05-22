@@ -148,4 +148,7 @@ export const api = {
   profesional: {
     getStats: () => fetchApi<StatsResponse>('/profesional/stats'),
   },
+  obrasSociales: {
+    getAll: () => fetchApi<string[]>('/obras-sociales'),
+  },
 };

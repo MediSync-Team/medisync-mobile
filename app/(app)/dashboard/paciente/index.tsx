@@ -1,43 +1,38 @@
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, RefreshControl, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { EmptyState, ErrorNotice, PrimaryButton, ProfesionalCard, SecondaryButton, Spinner, TurnoCard, sharedStyles } from '../../../../src/components/ui';
-import { api, type Especialidad, type Profesional, type Turno } from '../../../../src/lib/api';
-import { useAuth } from '../../../../src/lib/auth-context';
+import { KeyboardAvoidingView, Modal, Platform, RefreshControl, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { EmptyState, ErrorNotice, ProfesionalCard, SecondaryButton, Spinner, sharedStyles } from '../../../../src/components/ui';
+import { api, type Especialidad, type Profesional } from '../../../../src/lib/api';
 import { useNotifications } from '../../../../src/lib/notifications-context';
-import { colors, spacing, borderRadius } from '../../../../src/theme';
+import { colors, spacing, borderRadius, fontSize } from '../../../../src/theme';
 
-export default function PacienteDashboard() {
-  const { user, logout } = useAuth();
+export default function BuscarProfesionales() {
   const { unread } = useNotifications();
   const [especialidades, setEspecialidades] = useState<Especialidad[]>([]);
+  const [obrasSociales, setObrasSociales] = useState<string[]>([]);
   const [profesionales, setProfesionales] = useState<Profesional[]>([]);
-  const [turnos, setTurnos] = useState<Turno[]>([]);
-  const [historial, setHistorial] = useState<Turno[]>([]);
-  const [tab, setTab] = useState<'buscar' | 'turnos' | 'historial'>('turnos');
   const [filters, setFilters] = useState({ especialidad: '', modalidad: '', obraSocial: '', precioMax: '' });
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showObraSocial, setShowObraSocial] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [esp, profs, proximos, pasados] = await Promise.all([
+      const [esp, os, profs] = await Promise.all([
         api.especialidades.getAll(),
+        api.obrasSociales.getAll(),
         api.profesionales.getAll({ ...filters, page, limit: 10 }),
-        api.turnos.getMisTurnos({ tipo: 'proximos', page: 1, limit: 10 }),
-        api.turnos.getMisTurnos({ tipo: 'pasados', page: 1, limit: 10 }),
       ]);
       setEspecialidades(esp);
+      setObrasSociales(os);
       setProfesionales(profs.profesionales || []);
       setTotalPages(profs.pagination?.totalPages || 1);
-      setTurnos(proximos.turnos || []);
-      setHistorial(pasados.turnos || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo cargar el dashboard.');
+      setError(err instanceof Error ? err.message : 'No se pudo cargar.');
     } finally {
       setLoading(false);
     }
@@ -47,97 +42,99 @@ export default function PacienteDashboard() {
     load();
   }, [load]);
 
-  async function cancelTurno(turno: Turno) {
-    Alert.alert('Cancelar turno', '¿Querés cancelar este turno?', [
-      { text: 'No', style: 'cancel' },
-      {
-        text: 'Sí, cancelar',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await api.turnos.updateEstado(turno.id, 'CANCELADO', 'Cancelado desde mobile');
-            await load();
-          } catch (err) {
-            Alert.alert('Error', err instanceof Error ? err.message : 'No se pudo cancelar.');
-          }
-        },
-      },
-    ]);
+  function selectObraSocial(value: string) {
+    setFilters((f) => ({ ...f, obraSocial: f.obraSocial === value ? '' : value }));
+    setShowObraSocial(false);
   }
 
-  const visibleTurnos = tab === 'historial' ? historial : turnos;
-
   return (
+    <KeyboardAvoidingView style={sharedStyles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
     <ScrollView
       style={sharedStyles.screen}
       contentContainerStyle={sharedStyles.content}
       refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}
+      keyboardShouldPersistTaps="handled"
     >
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <View>
-          <Text style={sharedStyles.title}>Hola, {user?.paciente?.nombre || 'paciente'}</Text>
-          <Text style={sharedStyles.subtitle}>Turnos, búsqueda y notificaciones.</Text>
-        </View>
-        <TouchableOpacity onPress={() => router.push('/notifications')} style={{ padding: spacing.sm }}>
-          <Text style={{ color: colors.primary, fontWeight: '800' }}>Avisos {unread ? `(${unread})` : ''}</Text>
+        <Text style={sharedStyles.title}>Buscar profesionales</Text>
+        <TouchableOpacity onPress={() => router.push('/dashboard/paciente/perfil')} style={{ padding: spacing.sm }}>
+          <Text style={{ color: colors.primary, fontWeight: '800' }}>
+            Perfil {unread ? `(${unread})` : ''}
+          </Text>
         </TouchableOpacity>
       </View>
-      <View style={sharedStyles.row}>
-        {(['turnos', 'historial', 'buscar'] as const).map((item) => (
-          <TouchableOpacity key={item} onPress={() => setTab(item)} style={{ flex: 1, padding: spacing.sm, borderRadius: borderRadius.md, backgroundColor: tab === item ? colors.primary : colors.surface, borderWidth: 1, borderColor: colors.border }}>
-            <Text style={{ color: tab === item ? colors.white : colors.text, textAlign: 'center', fontWeight: '700' }}>{item}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-      <ErrorNotice message={error} />
-      {loading && !profesionales.length && !turnos.length ? <Spinner /> : null}
 
-      {tab === 'buscar' ? (
-        <View style={{ gap: spacing.md }}>
-          <TextInput style={sharedStyles.input} placeholder="Obra social" value={filters.obraSocial} onChangeText={(obraSocial) => setFilters((f) => ({ ...f, obraSocial }))} />
-          <View style={sharedStyles.row}>
-            <TextInput style={[sharedStyles.input, { flex: 1 }]} placeholder="Precio máx." keyboardType="numeric" value={filters.precioMax} onChangeText={(precioMax) => setFilters((f) => ({ ...f, precioMax }))} />
-            <TouchableOpacity onPress={() => setFilters((f) => ({ ...f, modalidad: f.modalidad === 'VIRTUAL' ? 'PRESENCIAL' : 'VIRTUAL' }))} style={{ flex: 1, padding: spacing.md, borderRadius: borderRadius.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}>
-              <Text style={{ color: colors.text, textAlign: 'center' }}>{filters.modalidad || 'Modalidad'}</Text>
+      <ErrorNotice message={error} />
+      {loading && !profesionales.length ? <Spinner /> : null}
+
+      <View style={{ gap: spacing.md }}>
+        <TouchableOpacity
+          onPress={() => setShowObraSocial(true)}
+          style={[sharedStyles.input, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}
+        >
+          <Text style={{ color: filters.obraSocial ? colors.text : colors.textSecondary, flex: 1 }}>
+            {filters.obraSocial || 'Obra social'}
+          </Text>
+          <Text style={{ color: colors.textSecondary }}>▼</Text>
+        </TouchableOpacity>
+
+        <View style={sharedStyles.row}>
+          <TextInput style={[sharedStyles.input, { flex: 1 }]} placeholder="Precio máx." keyboardType="numeric" value={filters.precioMax} onChangeText={(text) => setFilters((f) => ({ ...f, precioMax: text.replace(/[^0-9]/g, '') }))} />
+          <TouchableOpacity onPress={() => setFilters((f) => ({ ...f, modalidad: f.modalidad === 'VIRTUAL' ? 'PRESENCIAL' : 'VIRTUAL' }))} style={{ flex: 1, padding: spacing.md, borderRadius: borderRadius.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}>
+            <Text style={{ color: colors.text, textAlign: 'center' }}>{filters.modalidad || 'Modalidad'}</Text>
+          </TouchableOpacity>
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: spacing.sm }}>
+          <TouchableOpacity onPress={() => setFilters((f) => ({ ...f, especialidad: '' }))} style={{ padding: spacing.sm, borderRadius: borderRadius.md, backgroundColor: !filters.especialidad ? colors.primary : colors.surface }}>
+            <Text style={{ color: !filters.especialidad ? colors.white : colors.text }}>Todas</Text>
+          </TouchableOpacity>
+          {especialidades.map((esp) => (
+            <TouchableOpacity key={esp.id} onPress={() => setFilters((f) => ({ ...f, especialidad: esp.id }))} style={{ padding: spacing.sm, borderRadius: borderRadius.md, backgroundColor: filters.especialidad === esp.id ? colors.primary : colors.surface }}>
+              <Text style={{ color: filters.especialidad === esp.id ? colors.white : colors.text }}>{esp.nombre}</Text>
             </TouchableOpacity>
-          </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: spacing.sm }}>
-            <TouchableOpacity onPress={() => setFilters((f) => ({ ...f, especialidad: '' }))} style={{ padding: spacing.sm, borderRadius: borderRadius.md, backgroundColor: !filters.especialidad ? colors.primary : colors.surface }}>
-              <Text style={{ color: !filters.especialidad ? colors.white : colors.text }}>Todas</Text>
-            </TouchableOpacity>
-            {especialidades.map((esp) => (
-              <TouchableOpacity key={esp.id} onPress={() => setFilters((f) => ({ ...f, especialidad: esp.id }))} style={{ padding: spacing.sm, borderRadius: borderRadius.md, backgroundColor: filters.especialidad === esp.id ? colors.primary : colors.surface }}>
-                <Text style={{ color: filters.especialidad === esp.id ? colors.white : colors.text }}>{esp.nombre}</Text>
+          ))}
+        </ScrollView>
+        {profesionales.map((profesional) => (
+          <ProfesionalCard key={profesional.id} profesional={profesional} onPress={() => router.push(`/profesional/${profesional.id}`)} />
+        ))}
+        {!profesionales.length ? <EmptyState title="Sin profesionales" subtitle="Probá cambiar los filtros." /> : null}
+        <View style={sharedStyles.row}>
+          <SecondaryButton title="Anterior" onPress={() => setPage((p) => Math.max(1, p - 1))} />
+          <Text style={{ color: colors.text, flex: 1, textAlign: 'center' }}>{page} / {totalPages}</Text>
+          <SecondaryButton title="Siguiente" onPress={() => setPage((p) => Math.min(totalPages, p + 1))} />
+        </View>
+      </View>
+
+      <Modal visible={showObraSocial} transparent animationType="slide">
+        <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' }}>
+          <View style={{ backgroundColor: colors.surface, borderTopLeftRadius: borderRadius.xl, borderTopRightRadius: borderRadius.xl, maxHeight: '70%', padding: spacing.lg }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md }}>
+              <Text style={sharedStyles.title}>Obra social</Text>
+              <TouchableOpacity onPress={() => setShowObraSocial(false)}>
+                <Text style={{ color: colors.primary, fontWeight: '700', fontSize: fontSize.md }}>Cerrar</Text>
               </TouchableOpacity>
-            ))}
-          </ScrollView>
-          {profesionales.map((profesional) => (
-            <ProfesionalCard key={profesional.id} profesional={profesional} onPress={() => router.push(`/profesional/${profesional.id}`)} />
-          ))}
-          {!profesionales.length ? <EmptyState title="Sin profesionales" subtitle="Probá cambiar los filtros." /> : null}
-          <View style={sharedStyles.row}>
-            <SecondaryButton title="Anterior" onPress={() => setPage((p) => Math.max(1, p - 1))} />
-            <Text style={{ color: colors.text, flex: 1, textAlign: 'center' }}>{page} / {totalPages}</Text>
-            <SecondaryButton title="Siguiente" onPress={() => setPage((p) => Math.min(totalPages, p + 1))} />
+            </View>
+            <ScrollView>
+              <TouchableOpacity
+                onPress={() => selectObraSocial('')}
+                style={{ padding: spacing.md, borderRadius: borderRadius.md, backgroundColor: !filters.obraSocial ? colors.muted : 'transparent', marginBottom: spacing.xs }}
+              >
+                <Text style={{ color: colors.text, fontWeight: !filters.obraSocial ? '700' : '400' }}>Todas</Text>
+              </TouchableOpacity>
+              {obrasSociales.map((os) => (
+                <TouchableOpacity
+                  key={os}
+                  onPress={() => selectObraSocial(os)}
+                  style={{ padding: spacing.md, borderRadius: borderRadius.md, backgroundColor: filters.obraSocial === os ? colors.muted : 'transparent', marginBottom: spacing.xs }}
+                >
+                  <Text style={{ color: colors.text, fontWeight: filters.obraSocial === os ? '700' : '400' }}>{os}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
           </View>
         </View>
-      ) : (
-        <View style={{ gap: spacing.md }}>
-          {visibleTurnos.map((turno) => (
-            <View key={turno.id} style={{ gap: spacing.sm }}>
-              <TurnoCard turno={turno} onPress={() => router.push(`/turno/${turno.id}`)} />
-              {tab === 'turnos' && turno.estado !== 'CANCELADO' ? (
-                <View style={sharedStyles.row}>
-                  <SecondaryButton title="Preconsulta" onPress={() => router.push(`/preconsulta/${turno.id}`)} />
-                  <SecondaryButton title="Cancelar" onPress={() => cancelTurno(turno)} />
-                </View>
-              ) : null}
-            </View>
-          ))}
-          {!visibleTurnos.length ? <EmptyState title="No hay turnos" subtitle={tab === 'turnos' ? 'Buscá profesionales para reservar.' : 'Todavía no hay historial.'} /> : null}
-        </View>
-      )}
-      <PrimaryButton title="Cerrar sesión" onPress={logout} />
+      </Modal>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
