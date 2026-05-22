@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { ScrollView, Text } from 'react-native';
-import { PrimaryButton, SecondaryButton, sharedStyles } from '../../../src/components/ui';
+import { AppHeader, PrimaryButton, sharedStyles } from '../../../src/components/ui';
 
 export default function PagoResultScreen() {
   const { turnoId, estado } = useLocalSearchParams<{ turnoId?: string; estado?: string }>();
@@ -9,6 +9,7 @@ export default function PagoResultScreen() {
 
   return (
     <ScrollView style={sharedStyles.screen} contentContainerStyle={[sharedStyles.content, { flexGrow: 1, justifyContent: 'center' }]}>
+      <AppHeader showBack />
       <Text style={sharedStyles.title}>{title}</Text>
       <Text style={sharedStyles.subtitle}>
         {normalized === 'timeout'
@@ -16,7 +17,6 @@ export default function PagoResultScreen() {
           : `Estado recibido para el turno ${turnoId || ''}.`}
       </Text>
       <PrimaryButton title="Volver a mis turnos" onPress={() => router.replace('/dashboard/paciente')} />
-      <SecondaryButton title="Volver" onPress={() => router.back()} />
     </ScrollView>
   );
 }

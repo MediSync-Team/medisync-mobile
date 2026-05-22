@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { EmptyState, SecondaryButton, Spinner, sharedStyles } from '../../../src/components/ui';
+import { AppHeader, EmptyState, SecondaryButton, Spinner, sharedStyles } from '../../../src/components/ui';
 import { useNotifications } from '../../../src/lib/notifications-context';
 import { colors, spacing, borderRadius } from '../../../src/theme';
 
@@ -9,7 +9,7 @@ export default function NotificationsScreen() {
 
   return (
     <ScrollView style={sharedStyles.screen} contentContainerStyle={sharedStyles.content} refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refresh} />}>
-      <SecondaryButton title="Volver" onPress={() => router.back()} />
+      <AppHeader showBack simple />
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: spacing.md }}>
         <View style={{ flex: 1 }}>
           <Text style={sharedStyles.title}>Notificaciones</Text>

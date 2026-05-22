@@ -1,4 +1,6 @@
 import { ActivityIndicator, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useNotifications } from '../lib/notifications-context';
 import { colors, spacing, fontSize, borderRadius } from '../theme';
 import { estadoColor, fullName, turnoLocation } from '../lib/utils';
 import { formatDateTime } from '../lib/date';
@@ -81,6 +83,42 @@ export function TurnoCard({ turno, onPress }: { turno: Turno; onPress: () => voi
       <Text style={styles.muted}>{formatDateTime(turno.fechaHora)}</Text>
       <Text style={styles.muted}>{turno.modalidad} · {turnoLocation(turno)}</Text>
     </TouchableOpacity>
+  );
+}
+
+export function AppHeader({ showBack = false, simple = false }: { showBack?: boolean; simple?: boolean }) {
+  const router = useRouter();
+  const { unread } = useNotifications();
+
+  return (
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+        {showBack ? (
+          <TouchableOpacity onPress={() => router.back()}>
+            <Text style={{ fontSize: fontSize.xl, color: colors.primary }}>←</Text>
+          </TouchableOpacity>
+        ) : null}
+        <Text style={{ fontSize: fontSize.xxl, fontWeight: '800', color: colors.primary }}>MediSync</Text>
+      </View>
+      {simple ? null : (
+        <View style={{ flexDirection: 'row', gap: spacing.sm, alignItems: 'center' }}>
+          <TouchableOpacity onPress={() => router.push('/notifications')} style={{ padding: spacing.xs }}>
+            <Text style={{ fontSize: fontSize.xl }}>🔔</Text>
+            {unread > 0 ? (
+              <View style={{ position: 'absolute', top: 0, right: 0, backgroundColor: colors.error, borderRadius: 8, width: 16, height: 16, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ color: colors.white, fontSize: 10, fontWeight: '700' }}>{unread}</Text>
+              </View>
+            ) : null}
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push('/dashboard/paciente/perfil')}
+            style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: colors.muted, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: colors.border }}
+          >
+            <Text style={{ fontSize: fontSize.lg }}>👤</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
   );
 }
 

@@ -1,15 +1,13 @@
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { EmptyState, ErrorNotice, PrimaryButton, SecondaryButton, Spinner, TurnoCard, sharedStyles } from '../../../../src/components/ui';
+import { AppHeader, EmptyState, ErrorNotice, PrimaryButton, SecondaryButton, Spinner, TurnoCard, sharedStyles } from '../../../../src/components/ui';
 import { api, type Turno } from '../../../../src/lib/api';
 import { useAuth } from '../../../../src/lib/auth-context';
-import { useNotifications } from '../../../../src/lib/notifications-context';
-import { colors, spacing, borderRadius } from '../../../../src/theme';
+import { colors, spacing, borderRadius, fontSize } from '../../../../src/theme';
 
 export default function PerfilPaciente() {
   const { user, logout } = useAuth();
-  const { unread } = useNotifications();
   const [turnos, setTurnos] = useState<Turno[]>([]);
   const [historial, setHistorial] = useState<Turno[]>([]);
   const [tab, setTab] = useState<'turnos' | 'historial'>('turnos');
@@ -61,18 +59,9 @@ export default function PerfilPaciente() {
       contentContainerStyle={sharedStyles.content}
       refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}
     >
-      <TouchableOpacity onPress={() => router.back()} style={{ alignSelf: 'flex-start', padding: spacing.sm, marginBottom: spacing.sm }}>
-        <Text style={{ color: colors.primary, fontWeight: '700' }}>← Volver</Text>
-      </TouchableOpacity>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <View>
-          <Text style={sharedStyles.title}>Hola, {user?.paciente?.nombre || 'paciente'}</Text>
-          <Text style={sharedStyles.subtitle}>{user?.email}</Text>
-        </View>
-        <TouchableOpacity onPress={() => router.push('/notifications')} style={{ padding: spacing.sm }}>
-          <Text style={{ color: colors.primary, fontWeight: '800' }}>Avisos {unread ? `(${unread})` : ''}</Text>
-        </TouchableOpacity>
-      </View>
+      <AppHeader showBack simple />
+      <Text style={sharedStyles.title}>Hola, {user?.paciente?.nombre || 'paciente'}</Text>
+      <Text style={[sharedStyles.subtitle, { marginBottom: spacing.sm }]}>{user?.email}</Text>
 
       <View style={sharedStyles.row}>
         {(['turnos', 'historial'] as const).map((item) => (

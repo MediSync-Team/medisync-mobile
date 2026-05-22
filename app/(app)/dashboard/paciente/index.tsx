@@ -1,13 +1,11 @@
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, RefreshControl, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { EmptyState, ErrorNotice, ProfesionalCard, SecondaryButton, Spinner, sharedStyles } from '../../../../src/components/ui';
+import { AppHeader, EmptyState, ErrorNotice, ProfesionalCard, SecondaryButton, Spinner, sharedStyles } from '../../../../src/components/ui';
 import { api, type Especialidad, type Profesional } from '../../../../src/lib/api';
-import { useNotifications } from '../../../../src/lib/notifications-context';
 import { colors, spacing, borderRadius, fontSize } from '../../../../src/theme';
 
 export default function BuscarProfesionales() {
-  const { unread } = useNotifications();
   const [especialidades, setEspecialidades] = useState<Especialidad[]>([]);
   const [obrasSociales, setObrasSociales] = useState<string[]>([]);
   const [profesionales, setProfesionales] = useState<Profesional[]>([]);
@@ -55,14 +53,7 @@ export default function BuscarProfesionales() {
       refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}
       keyboardShouldPersistTaps="handled"
     >
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Text style={sharedStyles.title}>Buscar profesionales</Text>
-        <TouchableOpacity onPress={() => router.push('/dashboard/paciente/perfil')} style={{ padding: spacing.sm }}>
-          <Text style={{ color: colors.primary, fontWeight: '800' }}>
-            Perfil {unread ? `(${unread})` : ''}
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <AppHeader />
 
       <ErrorNotice message={error} />
       {loading && !profesionales.length ? <Spinner /> : null}

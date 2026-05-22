@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, ScrollView, Text, TextInput, View } from 'react-native';
-import { ErrorNotice, PrimaryButton, SecondaryButton, Spinner, sharedStyles } from '../../../src/components/ui';
+import { AppHeader, ErrorNotice, PrimaryButton, SecondaryButton, Spinner, sharedStyles } from '../../../src/components/ui';
 import { api, type PreconsultaInput, type PreconsultaTurno } from '../../../src/lib/api';
 import { colors, spacing } from '../../../src/theme';
 
@@ -58,7 +58,7 @@ export default function PreconsultaScreen() {
 
   return (
     <ScrollView style={sharedStyles.screen} contentContainerStyle={sharedStyles.content}>
-      <SecondaryButton title="Volver" onPress={() => router.back()} />
+      <AppHeader showBack />
       <Text style={sharedStyles.title}>Preconsulta</Text>
       <ErrorNotice message={error} />
       {(['motivo', 'sintomas', 'alergias', 'medicacion', 'historia', 'notasPaciente'] as const).map((key) => (

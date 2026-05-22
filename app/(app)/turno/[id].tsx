@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, RefreshControl, ScrollView, Text, TextInput, View } from 'react-native';
-import { EmptyState, ErrorNotice, PrimaryButton, SecondaryButton, Spinner, EstadoBadge, sharedStyles } from '../../../src/components/ui';
+import { AppHeader, EmptyState, ErrorNotice, PrimaryButton, SecondaryButton, Spinner, EstadoBadge, sharedStyles } from '../../../src/components/ui';
 import { api, type Turno, type TurnoEstado } from '../../../src/lib/api';
 import { combineLocalDateTimeToIso, formatDateTime, todayDate } from '../../../src/lib/date';
 import { canTransition, fullName, turnoLocation } from '../../../src/lib/utils';
@@ -55,7 +55,7 @@ export default function TurnoDetailScreen() {
 
   return (
     <ScrollView style={sharedStyles.screen} contentContainerStyle={sharedStyles.content} refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}>
-      <SecondaryButton title="Volver" onPress={() => router.back()} />
+      <AppHeader showBack />
       <ErrorNotice message={error} />
       {turno ? (
         <>

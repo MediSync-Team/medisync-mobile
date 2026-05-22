@@ -2,7 +2,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { EmptyState, ErrorNotice, PrimaryButton, SecondaryButton, Spinner, sharedStyles } from '../../../src/components/ui';
+import { AppHeader, EmptyState, ErrorNotice, PrimaryButton, SecondaryButton, Spinner, sharedStyles } from '../../../src/components/ui';
 import { api, type Profesional, type Slot } from '../../../src/lib/api';
 import { todayDate } from '../../../src/lib/date';
 import { fullName } from '../../../src/lib/utils';
@@ -82,7 +82,7 @@ export default function ProfesionalProfileScreen() {
 
   return (
     <ScrollView style={sharedStyles.screen} contentContainerStyle={sharedStyles.content} refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}>
-      <SecondaryButton title="Volver" onPress={() => router.back()} />
+      <AppHeader showBack />
       <ErrorNotice message={error} />
       {profesional ? (
         <>
