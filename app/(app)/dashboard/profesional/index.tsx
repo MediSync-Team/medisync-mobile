@@ -129,6 +129,8 @@ export default function ProfesionalDashboard() {
               {t('professional', 'myAvailability')}
             </Text>
           </TouchableOpacity>
+        </View>
+        <View style={{ flexDirection: 'row', gap: spacing.sm }}>
           <TouchableOpacity
             onPress={() => router.push('/dashboard/profesional/perfil')}
             style={{
@@ -140,6 +142,19 @@ export default function ProfesionalDashboard() {
             <Text style={{ fontSize: 24 }}>👤</Text>
             <Text style={{ fontSize: fontSize.sm, fontWeight: '600', color: colors.text, marginTop: spacing.xs }}>
               {t('professional', 'profile')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push('/dashboard/profesional/buscar')}
+            style={{
+              flex: 1, backgroundColor: colors.surface, borderRadius: borderRadius.lg,
+              padding: spacing.md, borderWidth: 1, borderColor: colors.border,
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{ fontSize: 24 }}>🔍</Text>
+            <Text style={{ fontSize: fontSize.sm, fontWeight: '600', color: colors.text, marginTop: spacing.xs }}>
+              Buscar
             </Text>
           </TouchableOpacity>
         </View>

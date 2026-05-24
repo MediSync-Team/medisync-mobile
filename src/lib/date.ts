@@ -1,5 +1,5 @@
 export function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat('es-AR', {
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(new Date(value));
