@@ -106,7 +106,7 @@ export default function ProfesionalAgenda() {
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setFecha(new Date())}>
             <Text style={{ fontSize: fontSize.md, fontWeight: '600', color: colors.text, textTransform: 'capitalize' }}>
-              {isToday ? `${t('common', 'today')} — ` : ''}{dayLabel}
+              {isToday ? `${t('professional', 'today')} — ` : ''}{dayLabel}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => changeDay(1)} style={{ padding: spacing.sm }}>
