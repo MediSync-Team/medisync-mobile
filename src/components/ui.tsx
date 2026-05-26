@@ -81,7 +81,13 @@ export function ProfesionalCard({ profesional, onPress }: { profesional: Profesi
     <TouchableOpacity style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={onPress}>
       <Text style={[styles.cardTitle, { color: colors.text }]}>{fullName(profesional)}</Text>
       <Text style={[styles.muted, { color: colors.textSecondary }]}>{profesional.especialidad?.nombre || 'Especialidad'}</Text>
-      <Text style={[styles.muted, { color: colors.textSecondary }]}>{profesional.obrasSociales?.join(', ') || 'Particular'}</Text>
+      <Text style={[styles.muted, { color: colors.textSecondary }]}>
+        {profesional.obrasSociales && profesional.obrasSociales.length > 0
+          ? (profesional.obrasSociales.length <= 3
+              ? profesional.obrasSociales.join(', ')
+              : `${profesional.obrasSociales.slice(0, 3).join(', ')}, +${profesional.obrasSociales.length - 3}`)
+          : 'Particular'}
+      </Text>
       <Text style={[styles.price, { color: colors.primary }]}>${Number(profesional.precioConsulta || 0).toLocaleString()}</Text>
     </TouchableOpacity>
   );
