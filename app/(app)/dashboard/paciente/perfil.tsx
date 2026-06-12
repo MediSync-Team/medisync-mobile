@@ -6,6 +6,7 @@ import { api, type Turno, type PacienteStats, type ListaEsperaItem } from '../..
 import { useAuth } from '../../../../src/lib/auth-context';
 import { spacing, borderRadius, fontSize } from '../../../../src/theme';
 import { useTheme } from '../../../../src/contexts/ThemeContext';
+import { canJoinVideoCall } from '../../../../src/lib/utils';
 
 type Tab = 'resumen' | 'proximos' | 'pasados' | 'lista' | 'opciones';
 
@@ -149,6 +150,9 @@ export default function PerfilPaciente() {
               <View style={s.row}>
                 <SecondaryButton title="Preconsulta" onPress={() => router.push(`/preconsulta/${turno.id}`)} />
                 <SecondaryButton title="Cancelar" onPress={() => cancelTurno(turno)} />
+                {canJoinVideoCall(turno) ? (
+                  <SecondaryButton title="Videoconsulta" onPress={() => router.push(`/video-call?turnoId=${turno.id}&role=patient`)} />
+                ) : null}
               </View>
             ) : null}
           </View>

@@ -4,7 +4,7 @@ import { Alert, KeyboardAvoidingView, Platform, RefreshControl, ScrollView, Text
 import { AppHeader, EmptyState, ErrorNotice, SecondaryButton, Spinner, TurnoCard, getSharedStyles } from '../../../../src/components/ui';
 import { api, type Turno, type TurnoEstado } from '../../../../src/lib/api';
 import { useAuth } from '../../../../src/lib/auth-context';
-import { canTransition, estadoColor } from '../../../../src/lib/utils';
+import { canJoinVideoCall, canTransition, estadoColor } from '../../../../src/lib/utils';
 import { useTheme } from '../../../../src/contexts/ThemeContext';
 import { useLang } from '../../../../src/i18n/context';
 import { spacing, borderRadius, fontSize } from '../../../../src/theme';
@@ -208,6 +208,9 @@ export default function ProfesionalAgenda() {
                 .map((next) => (
                   <SecondaryButton key={next} title={next} onPress={() => changeEstado(turno, next)} />
                 ))}
+              {canJoinVideoCall(turno) ? (
+                <SecondaryButton title="Sala de espera" onPress={() => router.push(`/video-call?turnoId=${turno.id}&role=professional`)} />
+              ) : null}
             </View>
           </View>
         ))}

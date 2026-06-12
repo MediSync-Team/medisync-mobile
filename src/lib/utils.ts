@@ -29,3 +29,7 @@ export function estadoColor(estado: TurnoEstado) {
       return '#64748B';
   }
 }
+
+export function canJoinVideoCall(turno: Turno) {
+  return turno.modalidad === 'VIRTUAL' && (turno.estado === 'RESERVADO' || turno.estado === 'CONFIRMADO');
+}
