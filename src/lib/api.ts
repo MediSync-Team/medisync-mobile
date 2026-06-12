@@ -1,4 +1,3 @@
-import * as SecureStore from 'expo-secure-store';
 import type {
   AuthResponse,
   LoginData,
@@ -42,18 +41,29 @@ type ApiEnvelope<T> = {
 
 export async function getToken() {
   try {
-    return await SecureStore.getItemAsync(TOKEN_KEY);
+    const { getItemAsync } = await import('expo-secure-store');
+    return await getItemAsync(TOKEN_KEY);
   } catch {
     return null;
   }
 }
 
 export async function setToken(token: string) {
-  await SecureStore.setItemAsync(TOKEN_KEY, token);
+  try {
+    const { setItemAsync } = await import('expo-secure-store');
+    await setItemAsync(TOKEN_KEY, token);
+  } catch {
+    // storage not available
+  }
 }
 
 export async function removeToken() {
-  await SecureStore.deleteItemAsync(TOKEN_KEY);
+  try {
+    const { deleteItemAsync } = await import('expo-secure-store');
+    await deleteItemAsync(TOKEN_KEY);
+  } catch {
+    // storage not available
+  }
 }
 
 export async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {

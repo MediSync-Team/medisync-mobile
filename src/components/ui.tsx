@@ -4,7 +4,7 @@ import { useAuth } from '../lib/auth-context';
 import { useNotifications } from '../lib/notifications-context';
 import { useTheme } from '../contexts/ThemeContext';
 import { colors as lightColors, spacing, fontSize, borderRadius } from '../theme';
-import { estadoColor, fullName, turnoLocation } from '../lib/utils';
+import { canJoinVideoCall, estadoColor, fullName, turnoLocation } from '../lib/utils';
 import { formatDateTime } from '../lib/date';
 import type { Profesional, Turno } from '../lib/api';
 
@@ -104,6 +104,9 @@ export function TurnoCard({ turno, onPress }: { turno: Turno; onPress: () => voi
       </View>
       <Text style={[styles.muted, { color: colors.textSecondary }]}>{formatDateTime(turno.fechaHora)}</Text>
       <Text style={[styles.muted, { color: colors.textSecondary }]}>{turno.modalidad} · {turnoLocation(turno)}</Text>
+      {canJoinVideoCall(turno) ? (
+        <Text style={[styles.muted, { color: colors.primary, marginTop: 6, fontWeight: '700' }]}>Videoconsulta disponible</Text>
+      ) : null}
     </TouchableOpacity>
   );
 }
