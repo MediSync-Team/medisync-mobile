@@ -54,7 +54,7 @@ export const api = {
     getPreconsulta: (id: string) => fetchApi<T.PreconsultaTurno>(`/turnos/${id}/preconsulta`),
     updatePreconsulta: (id: string, data: T.PreconsultaInput) =>
       fetchApi<T.PreconsultaTurno>(`/turnos/${id}/preconsulta`, { method: 'PUT', body: JSON.stringify(data) }),
-    getVideoToken: (id: string) => fetchApi<{ ticket: string; roomId: string }>(`/turnos/${id}/video-token`),
+    getVideoToken: (id: string) => fetchApi<{ ticket: string; roomId: string; iceServers?: T.IceServer[] }>(`/turnos/${id}/video-token`),
     getReceta: (id: string) => fetchApi<T.RecetaIndicacion | null>(`/turnos/${id}/receta`),
     guardarReceta: (id: string, data: T.RecetaIndicacionInput) =>
       fetchApi<{ receta: T.RecetaIndicacion; shareText: string }>(`/turnos/${id}/receta`, { method: 'POST', body: JSON.stringify(data) }),

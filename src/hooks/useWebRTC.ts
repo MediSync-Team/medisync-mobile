@@ -26,7 +26,9 @@ type MediaStreamTrackEvent = {
 
 type NativePeerConnection = any;
 
-const DEFAULT_ICE_SERVERS = [
+type IceServer = { urls: string | string[]; username?: string; credential?: string };
+
+const DEFAULT_ICE_SERVERS: IceServer[] = [
   { urls: 'stun:stun.l.google.com:19302' },
   { urls: 'stun:stun1.l.google.com:19302' },
   { urls: 'stun:stun2.l.google.com:19302' },
@@ -86,8 +88,9 @@ export function useWebRTC() {
     return stream;
   }, [getLocalStream]);
 
-  const createPeerConnection = useCallback((onRemoteTrack?: RemoteTrackCallback, onIceCandidate?: (candidate: RTCIceCandidateInit) => void) => {
-    const pc = new (RTCPeerConnection as unknown as { new(options: unknown): NativePeerConnection })({ iceServers: DEFAULT_ICE_SERVERS });
+  const createPeerConnection = useCallback((onRemoteTrack?: RemoteTrackCallback, onIceCandidate?: (candidate: RTCIceCandidateInit) => void, iceServers?: IceServer[]) => {
+    const servers = iceServers && iceServers.length > 0 ? iceServers : DEFAULT_ICE_SERVERS;
+    const pc = new (RTCPeerConnection as unknown as { new(options: unknown): NativePeerConnection })({ iceServers: servers });
 
     const stream = streamRef.current;
     if (stream) {

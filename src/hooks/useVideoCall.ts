@@ -75,6 +75,7 @@ export function useVideoCall(turnoId: string) {
     try {
       const data = await api.turnos.getVideoToken(turnoId);
       setTicket(data.ticket);
+      const iceServers = data.iceServers;
 
       const stream = await attachLocalStream();
       const ws = new WebSocket(buildVideoCallUrl(data.ticket));
@@ -88,7 +89,7 @@ export function useVideoCall(turnoId: string) {
 
       const ensurePeerConnection = () => {
         if (pcReadyRef.current) return;
-        createPeerConnection(undefined, sendIceCandidate);
+        createPeerConnection(undefined, sendIceCandidate, iceServers);
         pcReadyRef.current = true;
       };
 
