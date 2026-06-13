@@ -14,13 +14,13 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://www.medisync.website/api"
+        "EXPO_PUBLIC_API_URL": "https://medisync-api-production.up.railway.app/api"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://www.medisync.website/api"
+        "EXPO_PUBLIC_API_URL": "https://medisync-api-production.up.railway.app/api"
       }
     }
   },
