@@ -1,3 +1,9 @@
+export interface IceServer {
+  urls: string | string[];
+  username?: string;
+  credential?: string;
+}
+
 export type Genero = 'MASCULINO' | 'FEMENINO' | 'OTRO' | 'NO_ESPECIFICADO';
 export type Rol = 'PROFESIONAL' | 'PACIENTE' | 'ADMIN' | 'CLINICA';
 export type TurnoEstado = 'RESERVADO' | 'CONFIRMADO' | 'COMPLETADO' | 'CANCELADO' | 'AUSENTE';
