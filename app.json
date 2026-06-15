@@ -38,7 +38,8 @@
       "permissions": [
         "CAMERA",
         "RECORD_AUDIO",
-        "MODIFY_AUDIO_SETTINGS"
+        "MODIFY_AUDIO_SETTINGS",
+        "ACCESS_NETWORK_STATE"
       ],
       "intentFilters": [
         {
