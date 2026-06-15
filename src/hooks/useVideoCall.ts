@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { api, API_BASE } from '../api';
-import { useWebRTC } from './useWebRTC';
+import { useWebRTC, type WebRTCConnectionState } from './useWebRTC';
 
 type CallStage = 'idle' | 'connecting' | 'waiting' | 'calling' | 'in-call' | 'ended' | 'error';
 
@@ -38,6 +38,7 @@ export function useVideoCall(turnoId: string) {
   const [duration, setDuration] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const stageRef = useRef<CallStage>('idle');
+  const cancelledRef = useRef(false);
 
   useEffect(() => {
     stageRef.current = stage;
@@ -64,20 +65,25 @@ export function useVideoCall(turnoId: string) {
   }, [cleanupRtc, stopTimer]);
 
   const hangUp = useCallback(() => {
+    cancelledRef.current = true;
     cleanup();
     setStage('ended');
   }, [cleanup]);
 
   const connect = useCallback(async () => {
+    cancelledRef.current = false;
     setError(null);
     setStage('connecting');
 
     try {
       const data = await api.turnos.getVideoToken(turnoId);
+      if (cancelledRef.current) return;
       setTicket(data.ticket);
       const iceServers = data.iceServers;
 
       const stream = await attachLocalStream();
+      if (cancelledRef.current) return;
+
       const ws = new WebSocket(buildVideoCallUrl(data.ticket));
       wsRef.current = ws;
 
@@ -87,26 +93,46 @@ export function useVideoCall(turnoId: string) {
         }
       };
 
+      const onConnectionStateChange = (state: WebRTCConnectionState) => {
+        if (cancelledRef.current) return;
+        if (state === 'connected') {
+          setStage('in-call');
+          startTimer();
+        } else if (['failed', 'disconnected', 'closed'].includes(state)) {
+          cleanup();
+          setStage('ended');
+          stopTimer();
+        }
+      };
+
       const ensurePeerConnection = () => {
         if (pcReadyRef.current) return;
-        createPeerConnection(undefined, sendIceCandidate, iceServers ?? []);
+        createPeerConnection(undefined, sendIceCandidate, iceServers ?? [], onConnectionStateChange);
         pcReadyRef.current = true;
       };
 
-      ws.onopen = () => setStage('waiting');
+      ws.onopen = () => {
+        if (!cancelledRef.current) setStage('waiting');
+      };
 
       ws.onerror = () => {
+        if (cancelledRef.current) return;
+        stopTimer();
         setError('Error conectando al servidor de videollamadas.');
         setStage('error');
       };
 
       ws.onclose = (event) => {
+        if (cancelledRef.current) return;
+        stopTimer();
         if (event.code !== 1000 && stageRef.current !== 'error') {
-          setStage((current) => (current === 'in-call' ? 'ended' : 'ended'));
+          setStage('ended');
         }
       };
 
       ws.onmessage = async (event) => {
+        if (cancelledRef.current) return;
+
         let message: VideoCallMessage | null = null;
         try {
           message = JSON.parse(event.data as string) as VideoCallMessage;
@@ -116,56 +142,65 @@ export function useVideoCall(turnoId: string) {
 
         if (!message) return;
 
-        switch (message.type) {
-          case 'waiting':
-            setStage('waiting');
-            break;
+        try {
+          switch (message.type) {
+            case 'waiting':
+              setStage('waiting');
+              break;
 
-          case 'peer-joined':
-            setStage('calling');
-            break;
+            case 'peer-joined':
+              setStage('calling');
+              break;
 
-          case 'start-call': {
-            setStage('calling');
-            ensurePeerConnection();
-            const offer = await createOffer();
-            ws.send(JSON.stringify({ type: 'offer', sdp: offer }));
-            break;
+            case 'start-call': {
+              setStage('calling');
+              ensurePeerConnection();
+              const offer = await createOffer();
+              ws.send(JSON.stringify({ type: 'offer', sdp: offer }));
+              break;
+            }
+
+            case 'offer': {
+              setStage('calling');
+              ensurePeerConnection();
+              await setRemoteDescription(message.sdp);
+              const answer = await createAnswer();
+              ws.send(JSON.stringify({ type: 'answer', sdp: answer }));
+              break;
+            }
+
+            case 'answer':
+              await setRemoteDescription(message.sdp);
+              break;
+
+            case 'ice-candidate':
+              await addIceCandidate(message.candidate);
+              break;
+
+            case 'peer-left':
+              stopTimer();
+              setStage('ended');
+              break;
+
+            case 'error':
+              stopTimer();
+              setError(message.message ?? 'No se pudo iniciar la videollamada.');
+              setStage('error');
+              break;
           }
-
-          case 'offer': {
-            setStage('calling');
-            ensurePeerConnection();
-            await setRemoteDescription(message.sdp);
-            const answer = await createAnswer();
-            ws.send(JSON.stringify({ type: 'answer', sdp: answer }));
-            break;
-          }
-
-          case 'answer':
-            await setRemoteDescription(message.sdp);
-            setStage('in-call');
-            startTimer();
-            break;
-
-          case 'ice-candidate':
-            await addIceCandidate(message.candidate);
-            break;
-
-          case 'peer-left':
-            setStage('ended');
+        } catch (err) {
+          if (!cancelledRef.current) {
             stopTimer();
-            break;
-
-          case 'error':
-            setError(message.message ?? 'No se pudo iniciar la videollamada.');
+            setError(err instanceof Error ? err.message : 'Error en la videollamada.');
             setStage('error');
-            break;
+          }
         }
       };
 
       return stream;
     } catch (err) {
+      if (cancelledRef.current) return;
+      stopTimer();
       setError(err instanceof Error ? err.message : 'No se pudo iniciar la videollamada.');
       setStage('error');
       throw err;
@@ -175,6 +210,7 @@ export function useVideoCall(turnoId: string) {
   useEffect(() => {
     connect().catch(() => undefined);
     return () => {
+      cancelledRef.current = true;
       cleanup();
     };
   }, [cleanup, connect]);

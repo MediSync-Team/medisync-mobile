@@ -59,6 +59,7 @@ export function useWebRTC() {
     _remoteVideoRef: undefined,
     sendIceCandidate: (candidate: RTCIceCandidateInit) => void,
     iceServers: RTCIceServer[],
+    onConnectionStateChange?: (state: WebRTCConnectionState) => void,
   ) => {
     const stream = streamRef.current;
     if (!stream) return;
@@ -69,19 +70,27 @@ export function useWebRTC() {
 
     (pc as any).addEventListener('icecandidate', (e: any) => {
       if (e.candidate) {
-        sendIceCandidate({ candidate: e.candidate.candidate, sdpMLineIndex: e.candidate.sdpMLineIndex, sdpMid: e.candidate.sdpMid });
+        sendIceCandidate({
+          candidate: e.candidate.candidate,
+          sdpMLineIndex: e.candidate.sdpMLineIndex,
+          sdpMid: e.candidate.sdpMid,
+          usernameFragment: e.candidate.usernameFragment,
+        });
       }
     });
 
     (pc as any).addEventListener('track', (e: any) => {
-      if (e.streams?.[0]) {
-        setRemoteStream(e.streams[0]);
+      const stream = e.streams?.[0] || e.stream;
+      if (stream) {
+        setRemoteStream(stream);
         setHasRemoteStream(true);
       }
     });
 
     (pc as any).addEventListener('connectionstatechange', () => {
-      setConnectionState(pc.connectionState as WebRTCConnectionState);
+      const state = pc.connectionState as WebRTCConnectionState;
+      setConnectionState(state);
+      if (onConnectionStateChange) onConnectionStateChange(state);
     });
 
     pcRef.current = pc;
@@ -151,11 +160,13 @@ export function useWebRTC() {
   }, []);
 
   const cleanup = useCallback(() => {
-    pcRef.current?.close();
+    const pc = pcRef.current;
+    if (pc) {
+      pc.close();
+    }
     pcRef.current = null;
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(t => t.stop());
-      streamRef.current.release(true);
       streamRef.current = null;
     }
     pendingCandidatesRef.current = [];
@@ -185,9 +196,8 @@ export function useWebRTC() {
     toggleCamera,
     toggleMic,
   }), [
-    addIceCandidate,
     attachLocalStream,
-    cameraEnabled,
+    addIceCandidate,
     cleanup,
     connectionState,
     createAnswer,
@@ -196,6 +206,7 @@ export function useWebRTC() {
     getLocalStream,
     hasRemoteStream,
     micEnabled,
+    cameraEnabled,
     remoteStream,
     setRemoteDescription,
     toggleCamera,
