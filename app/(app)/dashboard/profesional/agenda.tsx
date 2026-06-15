@@ -209,7 +209,7 @@ export default function ProfesionalAgenda() {
                   <SecondaryButton key={next} title={next} onPress={() => changeEstado(turno, next)} />
                 ))}
               {canJoinVideoCall(turno) ? (
-                <SecondaryButton title="Sala de espera" onPress={() => router.push(`/video-call?turnoId=${turno.id}&role=professional`)} />
+                <SecondaryButton title="Sala de espera" onPress={() => router.push(`/video-call?turnoId=${turno.id}&role=professional&participantName=${encodeURIComponent(turno.paciente ? `${turno.paciente.nombre} ${turno.paciente.apellido}` : '')}`)} />
               ) : null}
             </View>
           </View>

@@ -1,10 +1,11 @@
-import { View, Text } from 'react-native';
+import { Redirect, useLocalSearchParams } from 'expo-router';
 
-export default function VideoCallWaitingStub() {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-      <Text style={{ fontSize: 18, fontWeight: '600' }}>Sala de espera</Text>
-      <Text style={{ fontSize: 14, marginTop: 8 }}>Próximamente disponible.</Text>
-    </View>
-  );
+export default function VideoCallWaiting() {
+  const { turnoId, participantName } = useLocalSearchParams<{
+    turnoId: string;
+    participantName: string;
+  }>();
+  const params = new URLSearchParams({ turnoId, role: 'professional' });
+  if (participantName) params.set('participantName', participantName);
+  return <Redirect href={`/video-call?${params.toString()}`} />;
 }

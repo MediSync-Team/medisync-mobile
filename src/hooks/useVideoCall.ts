@@ -89,7 +89,7 @@ export function useVideoCall(turnoId: string) {
 
       const ensurePeerConnection = () => {
         if (pcReadyRef.current) return;
-        createPeerConnection(undefined, sendIceCandidate, iceServers);
+        createPeerConnection(undefined, sendIceCandidate, iceServers ?? []);
         pcReadyRef.current = true;
       };
 

@@ -50,10 +50,9 @@ function DeepLinkBridge() {
         if (parsed.hostname === 'video-call' || parsed.pathname.includes('video-call')) {
           const turnoId = parsed.searchParams.get('turnoId');
           const role = parsed.searchParams.get('role');
+          const participantName = parsed.searchParams.get('participantName') ?? '';
           if (turnoId) {
-            router.push(role === 'professional'
-              ? `/video-call-waiting?turnoId=${encodeURIComponent(turnoId)}`
-              : `/video-call?turnoId=${encodeURIComponent(turnoId)}&role=patient`);
+            router.push(`/video-call?turnoId=${encodeURIComponent(turnoId)}&role=${role ?? 'patient'}&participantName=${encodeURIComponent(participantName)}`);
           }
         }
       } catch {

@@ -151,7 +151,7 @@ export default function PerfilPaciente() {
                 <SecondaryButton title="Preconsulta" onPress={() => router.push(`/preconsulta/${turno.id}`)} />
                 <SecondaryButton title="Cancelar" onPress={() => cancelTurno(turno)} />
                 {canJoinVideoCall(turno) ? (
-                  <SecondaryButton title="Videoconsulta" onPress={() => router.push(`/video-call?turnoId=${turno.id}&role=patient`)} />
+                  <SecondaryButton title="Videoconsulta" onPress={() => router.push(`/video-call?turnoId=${turno.id}&role=patient&participantName=${encodeURIComponent(turno.profesional ? `${turno.profesional.nombre} ${turno.profesional.apellido}` : '')}`)} />
                 ) : null}
               </View>
             ) : null}
