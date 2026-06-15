@@ -142,34 +142,44 @@ export function useVideoCall(turnoId: string) {
 
         if (!message) return;
 
+        console.log('[video] WS message type:', message.type, message.type === 'ice-candidate' ? 'candidate:' + (message as any).candidate?.candidate?.slice(0, 40) : '');
+
         try {
           switch (message.type) {
             case 'waiting':
+              console.log('[video] waiting for other peer');
               setStage('waiting');
               break;
 
             case 'peer-joined':
+              console.log('[video] peer joined, now calling');
               setStage('calling');
               break;
 
             case 'start-call': {
+              console.log('[video] start-call: creating offer');
               setStage('calling');
               ensurePeerConnection();
+              console.log('[video] pcRef after ensure:', rtc.pcRef.current ? 'SET' : 'NULL');
               const offer = await createOffer();
+              console.log('[video] offer created, sdp length:', offer.sdp?.length);
               ws.send(JSON.stringify({ type: 'offer', sdp: offer }));
               break;
             }
 
             case 'offer': {
+              console.log('[video] offer received, sdp length:', (message.sdp as any)?.sdp?.length);
               setStage('calling');
               ensurePeerConnection();
               await setRemoteDescription(message.sdp);
               const answer = await createAnswer();
+              console.log('[video] answer created, sdp length:', answer.sdp?.length);
               ws.send(JSON.stringify({ type: 'answer', sdp: answer }));
               break;
             }
 
             case 'answer':
+              console.log('[video] answer received, setting remote description');
               await setRemoteDescription(message.sdp);
               break;
 
@@ -178,17 +188,20 @@ export function useVideoCall(turnoId: string) {
               break;
 
             case 'peer-left':
+              console.log('[video] peer left');
               stopTimer();
               setStage('ended');
               break;
 
             case 'error':
+              console.log('[video] error from server:', message.message);
               stopTimer();
               setError(message.message ?? 'No se pudo iniciar la videollamada.');
               setStage('error');
               break;
           }
         } catch (err) {
+          console.log('[video] ERROR in onmessage handler:', err);
           if (!cancelledRef.current) {
             stopTimer();
             setError(err instanceof Error ? err.message : 'Error en la videollamada.');

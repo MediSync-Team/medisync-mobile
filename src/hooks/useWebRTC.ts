@@ -33,13 +33,19 @@ export function useWebRTC() {
 
   const getLocalStream = useCallback(async () => {
     try {
+      console.log('[webrtc] getLocalStream: requesting audio+video');
       const stream = await mediaDevices.getUserMedia({ video: true, audio: true });
+      console.log('[webrtc] getLocalStream: success, tracks:', stream.getTracks().length);
+      stream.getTracks().forEach(t => console.log('[webrtc]   track kind:', t.kind));
       streamRef.current = stream;
       setCameraEnabled(true);
       setMicEnabled(true);
       return stream;
-    } catch {
+    } catch (err) {
+      console.log('[webrtc] getLocalStream: video failed, trying audio-only', err);
       const stream = await mediaDevices.getUserMedia({ audio: true, video: false });
+      console.log('[webrtc] getLocalStream: audio-only success, tracks:', stream.getTracks().length);
+      stream.getTracks().forEach(t => console.log('[webrtc]   track kind:', t.kind));
       streamRef.current = stream;
       setCameraEnabled(false);
       setMicEnabled(true);
@@ -62,33 +68,53 @@ export function useWebRTC() {
     onConnectionStateChange?: (state: WebRTCConnectionState) => void,
   ) => {
     const stream = streamRef.current;
-    if (!stream) return;
+    console.log('[webrtc] createPeerConnection: stream is', stream ? 'SET' : 'NULL', 'tracks:', stream?.getTracks().length);
+    if (!stream) {
+      console.log('[webrtc] createPeerConnection: EARLY RETURN - no stream');
+      return;
+    }
 
     const pc = new RTCPeerConnection({ iceServers: iceServers?.length ? iceServers : FALLBACK_ICE_SERVERS });
+    console.log('[webrtc] PC created, iceServers:', iceServers?.length || 'fallback');
 
-    stream.getTracks().forEach(track => pc.addTrack(track, stream));
+    stream.getTracks().forEach(track => {
+      try {
+        const sender = pc.addTrack(track, stream);
+        console.log('[webrtc]   added track', track.kind, 'sender id:', sender?.id);
+      } catch (err) {
+        console.log('[webrtc]   FAILED to add track', track.kind, err);
+      }
+    });
 
     (pc as any).addEventListener('icecandidate', (e: any) => {
       if (e.candidate) {
+        console.log('[webrtc] icecandidate:', e.candidate.candidate?.slice(0, 60));
         sendIceCandidate({
           candidate: e.candidate.candidate,
           sdpMLineIndex: e.candidate.sdpMLineIndex,
           sdpMid: e.candidate.sdpMid,
           usernameFragment: e.candidate.usernameFragment,
         });
+      } else {
+        console.log('[webrtc] icecandidate: null (gathering done)');
       }
     });
 
     (pc as any).addEventListener('track', (e: any) => {
+      console.log('[webrtc] TRACK EVENT received', 'streams:', !!(e.streams?.[0]), 'e.stream:', !!e.stream);
       const stream = e.streams?.[0] || e.stream;
       if (stream) {
+        console.log('[webrtc]   remote stream id:', stream.id, 'tracks:', stream.getTracks().length);
         setRemoteStream(stream);
         setHasRemoteStream(true);
+      } else {
+        console.log('[webrtc]   no stream in track event');
       }
     });
 
     (pc as any).addEventListener('connectionstatechange', () => {
       const state = pc.connectionState as WebRTCConnectionState;
+      console.log('[webrtc] connectionstatechange ->', state);
       setConnectionState(state);
       if (onConnectionStateChange) onConnectionStateChange(state);
     });
