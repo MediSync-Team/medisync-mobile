@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { NativeModules, Platform } from 'react-native';
 import { api, API_BASE } from '../api';
 import { useWebRTC, type WebRTCConnectionState } from './useWebRTC';
 
@@ -39,6 +40,7 @@ export function useVideoCall(turnoId: string) {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const stageRef = useRef<CallStage>('idle');
   const cancelledRef = useRef(false);
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     stageRef.current = stage;
@@ -58,6 +60,10 @@ export function useVideoCall(turnoId: string) {
 
   const cleanup = useCallback(() => {
     stopTimer();
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
     wsRef.current?.close();
     wsRef.current = null;
     pcReadyRef.current = false;
@@ -96,9 +102,29 @@ export function useVideoCall(turnoId: string) {
       const onConnectionStateChange = (state: WebRTCConnectionState) => {
         if (cancelledRef.current) return;
         if (state === 'connected') {
+          if (reconnectTimeoutRef.current) {
+            clearTimeout(reconnectTimeoutRef.current);
+            reconnectTimeoutRef.current = null;
+          }
+          if (Platform.OS === 'android') {
+            NativeModules.SpeakerModule?.setSpeakerphoneOn(true);
+          }
           setStage('in-call');
           startTimer();
-        } else if (['failed', 'disconnected', 'closed'].includes(state)) {
+        } else if (state === 'disconnected') {
+          if (reconnectTimeoutRef.current) return;
+          reconnectTimeoutRef.current = setTimeout(() => {
+            if (cancelledRef.current) return;
+            reconnectTimeoutRef.current = null;
+            cleanup();
+            setStage('ended');
+            stopTimer();
+          }, 10000);
+        } else if (['failed', 'closed'].includes(state)) {
+          if (reconnectTimeoutRef.current) {
+            clearTimeout(reconnectTimeoutRef.current);
+            reconnectTimeoutRef.current = null;
+          }
           cleanup();
           setStage('ended');
           stopTimer();

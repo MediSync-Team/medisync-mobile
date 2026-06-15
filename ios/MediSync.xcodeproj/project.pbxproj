@@ -7,26 +7,26 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0692F3AEAF592611B82ADB95 /* libPods-MediSync.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 922E400BE35AB4ADC2C45836 /* libPods-MediSync.a */; };
-		1012D9D81E6E68BF72D997C2 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 7C649EEC95FD2051FC25AB3A /* PrivacyInfo.xcprivacy */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
+		628F7555B52C86F05CA26A85 /* libPods-MediSync.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F82A9633ACF8F4FC2734A76 /* libPods-MediSync.a */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		E5FCBEBAE8FC2648A239637A /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93FFB95B7409F1B4EF4762D5 /* ExpoModulesProvider.swift */; };
+		D117C3EB07C577AA98ED98C9 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14CEA1125E0D46960268906E /* ExpoModulesProvider.swift */; };
+		D76DA0A6F6BFBD2F261CE7D0 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 006360CE5BE07B53A9281E21 /* PrivacyInfo.xcprivacy */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		006360CE5BE07B53A9281E21 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = MediSync/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* MediSync.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MediSync.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = MediSync/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = MediSync/Info.plist; sourceTree = "<group>"; };
-		225E7127F1F8C526C7662B13 /* Pods-MediSync.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MediSync.debug.xcconfig"; path = "Target Support Files/Pods-MediSync/Pods-MediSync.debug.xcconfig"; sourceTree = "<group>"; };
-		7C649EEC95FD2051FC25AB3A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = MediSync/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		922E400BE35AB4ADC2C45836 /* libPods-MediSync.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MediSync.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		93FFB95B7409F1B4EF4762D5 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-MediSync/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		14CEA1125E0D46960268906E /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-MediSync/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		6F82A9633ACF8F4FC2734A76 /* libPods-MediSync.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MediSync.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = MediSync/SplashScreen.storyboard; sourceTree = "<group>"; };
+		B6FE8A0319C09D2B4715905E /* Pods-MediSync.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MediSync.release.xcconfig"; path = "Target Support Files/Pods-MediSync/Pods-MediSync.release.xcconfig"; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		D90705B90B46700242BA9376 /* Pods-MediSync.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MediSync.release.xcconfig"; path = "Target Support Files/Pods-MediSync/Pods-MediSync.release.xcconfig"; sourceTree = "<group>"; };
+		CEAB6F47DD77A4A287BCD009 /* Pods-MediSync.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MediSync.debug.xcconfig"; path = "Target Support Files/Pods-MediSync/Pods-MediSync.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = MediSync/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* MediSync-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "MediSync-Bridging-Header.h"; path = "MediSync/MediSync-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -37,7 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0692F3AEAF592611B82ADB95 /* libPods-MediSync.a in Frameworks */,
+				628F7555B52C86F05CA26A85 /* libPods-MediSync.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,44 +53,18 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				7C649EEC95FD2051FC25AB3A /* PrivacyInfo.xcprivacy */,
+				006360CE5BE07B53A9281E21 /* PrivacyInfo.xcprivacy */,
 			);
 			name = MediSync;
-			sourceTree = "<group>";
-		};
-		1F3D7B453E8EFA4FC3132589 /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				4B56316B25AEE88C82607AFE /* MediSync */,
-			);
-			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				922E400BE35AB4ADC2C45836 /* libPods-MediSync.a */,
+				6F82A9633ACF8F4FC2734A76 /* libPods-MediSync.a */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		4B56316B25AEE88C82607AFE /* MediSync */ = {
-			isa = PBXGroup;
-			children = (
-				93FFB95B7409F1B4EF4762D5 /* ExpoModulesProvider.swift */,
-			);
-			name = MediSync;
-			sourceTree = "<group>";
-		};
-		6278B33E5ABBDD59F427D601 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				225E7127F1F8C526C7662B13 /* Pods-MediSync.debug.xcconfig */,
-				D90705B90B46700242BA9376 /* Pods-MediSync.release.xcconfig */,
-			);
-			name = Pods;
-			path = Pods;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -107,8 +81,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				6278B33E5ABBDD59F427D601 /* Pods */,
-				1F3D7B453E8EFA4FC3132589 /* ExpoModulesProviders */,
+				F786D110A33DE60B032FE0EF /* Pods */,
+				D98BD3F3E79DE8DD18B793D6 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -123,6 +97,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		9C8B88B6A66866AC281A2497 /* MediSync */ = {
+			isa = PBXGroup;
+			children = (
+				14CEA1125E0D46960268906E /* ExpoModulesProvider.swift */,
+			);
+			name = MediSync;
+			sourceTree = "<group>";
+		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
 			isa = PBXGroup;
 			children = (
@@ -130,6 +112,24 @@
 			);
 			name = Supporting;
 			path = MediSync/Supporting;
+			sourceTree = "<group>";
+		};
+		D98BD3F3E79DE8DD18B793D6 /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				9C8B88B6A66866AC281A2497 /* MediSync */,
+			);
+			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
+		F786D110A33DE60B032FE0EF /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				CEAB6F47DD77A4A287BCD009 /* Pods-MediSync.debug.xcconfig */,
+				B6FE8A0319C09D2B4715905E /* Pods-MediSync.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -140,13 +140,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "MediSync" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				1F46BA18AF228F33FAC71425 /* [Expo] Configure project */,
+				5BA8D401BEE2C76078813B88 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				2DA7F8B0E45A09F9A0C6FC4F /* [CP] Embed Pods Frameworks */,
+				C114419C6E970631867EE0E1 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -196,7 +196,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				1012D9D81E6E68BF72D997C2 /* PrivacyInfo.xcprivacy in Resources */,
+				D76DA0A6F6BFBD2F261CE7D0 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -242,7 +242,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		1F46BA18AF228F33FAC71425 /* [Expo] Configure project */ = {
+		5BA8D401BEE2C76078813B88 /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -265,26 +265,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-MediSync/expo-configure-project.sh\"\n";
-		};
-		2DA7F8B0E45A09F9A0C6FC4F /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MediSync/Pods-MediSync-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/JitsiWebRTC/WebRTC.framework/WebRTC",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WebRTC.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MediSync/Pods-MediSync-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -320,6 +300,26 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MediSync/Pods-MediSync-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		C114419C6E970631867EE0E1 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MediSync/Pods-MediSync-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/JitsiWebRTC/WebRTC.framework/WebRTC",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WebRTC.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MediSync/Pods-MediSync-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -328,7 +328,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				E5FCBEBAE8FC2648A239637A /* ExpoModulesProvider.swift in Sources */,
+				D117C3EB07C577AA98ED98C9 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -337,7 +337,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 225E7127F1F8C526C7662B13 /* Pods-MediSync.debug.xcconfig */;
+			baseConfigurationReference = CEAB6F47DD77A4A287BCD009 /* Pods-MediSync.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -373,7 +373,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D90705B90B46700242BA9376 /* Pods-MediSync.release.xcconfig */;
+			baseConfigurationReference = B6FE8A0319C09D2B4715905E /* Pods-MediSync.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
