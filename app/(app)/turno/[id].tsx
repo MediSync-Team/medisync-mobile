@@ -4,7 +4,8 @@ import { Alert, RefreshControl, ScrollView, Text, TextInput, TouchableOpacity, V
 import { AppHeader, EmptyState, ErrorNotice, PrimaryButton, SecondaryButton, Spinner, EstadoBadge, getSharedStyles } from '../../../src/components/ui';
 import { api, type Turno, type TurnoEstado, type Slot } from '../../../src/lib/api';
 import { combineLocalDateTimeToIso, formatDateTime, todayDate } from '../../../src/lib/date';
-import { canTransition, fullName, turnoLocation } from '../../../src/lib/utils';
+import { canJoinVideoCall, canTransition, fullName, turnoLocation } from '../../../src/lib/utils';
+import { useAuth } from '../../../src/lib/auth-context';
 import { spacing, borderRadius, fontSize } from '../../../src/theme';
 import { useTheme } from '../../../src/contexts/ThemeContext';
 
@@ -12,6 +13,7 @@ export default function TurnoDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useTheme();
   const s = getSharedStyles(colors);
+  const { user } = useAuth();
   const [turno, setTurno] = useState<Turno | null>(null);
   const [date, setDate] = useState(todayDate());
   const [slots, setSlots] = useState<Slot[]>([]);
@@ -106,6 +108,18 @@ export default function TurnoDetailScreen() {
               .filter((next) => canTransition(turno.estado, next))
               .map((next) => <SecondaryButton key={next} title={next} onPress={() => changeEstado(next)} />)}
           </View>
+          {canJoinVideoCall(turno) ? (
+            <SecondaryButton
+              title={user?.rol === 'PROFESIONAL' ? 'Sala de espera' : 'Videoconsulta'}
+              onPress={() => {
+                const role = user?.rol === 'PROFESIONAL' ? 'professional' : 'patient';
+                const name = user?.rol === 'PROFESIONAL'
+                  ? turno.paciente ? `${turno.paciente.nombre} ${turno.paciente.apellido}` : ''
+                  : turno.profesional ? `${turno.profesional.nombre} ${turno.profesional.apellido}` : '';
+                router.push(`/video-call?turnoId=${turno.id}&role=${role}&participantName=${encodeURIComponent(name)}`);
+              }}
+            />
+          ) : null}
           <Text style={s.label}>Reprogramar</Text>
           <TextInput style={s.input} value={date} onChangeText={(d) => { setDate(d); setSelectedSlot(null); }} placeholder="YYYY-MM-DD" />
           {loadingSlots ? <Spinner label="Cargando horarios..." /> : null}
