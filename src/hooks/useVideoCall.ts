@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { NativeModules, Platform } from 'react-native';
-import { api, API_BASE } from '../api';
+import { api, API_BASE } from '../lib/api';
 import { useWebRTC, type WebRTCConnectionState } from './useWebRTC';
 
 type CallStage = 'idle' | 'connecting' | 'waiting' | 'calling' | 'in-call' | 'ended' | 'error';

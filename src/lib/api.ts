@@ -26,6 +26,7 @@ import type {
   Cupon,
   TipoDescuento,
   Pago,
+  IceServer,
 } from '../api/types';
 
 export type * from '../api/types';
@@ -158,6 +159,8 @@ export const api = {
     getPreconsulta: (id: string) => fetchApi<PreconsultaTurno>(`/turnos/${id}/preconsulta`),
     updatePreconsulta: (id: string, data: PreconsultaInput) =>
       fetchApi<PreconsultaTurno>(`/turnos/${id}/preconsulta`, { method: 'PUT', body: JSON.stringify(data) }),
+    getVideoToken: (id: string) =>
+      fetchApi<{ ticket: string; roomId: string; iceServers?: IceServer[] }>(`/turnos/${id}/video-token`),
   },
   pagos: {
     crearPreferencia: (data: { turnoId: string; cuponCodigo?: string }) =>
