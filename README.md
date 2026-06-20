@@ -38,18 +38,28 @@ eas submit --platform android  # Submit to Google Play
 ## Project Structure
 
 ```
-src/
-├── api/           # API client and types
-├── contexts/      # Auth, Theme, Language contexts
-├── i18n/          # Translations (ES/EN)
-├── navigation/    # Stack and tab navigators
-├── screens/       # Screen components
-│   ├── auth/
-│   ├── patient/
-│   ├── professional/
-│   ├── clinic/
-│   └── admin/
-└── theme/         # Colors, spacing, typography
+app/                    # expo-router routes (file-based navigation)
+├── _layout.tsx
+├── index.tsx
+├── (auth)/             # login, register, forgot-password
+├── (app)/              # authenticated screens (role picks dashboard)
+│   ├── dashboard/
+│   ├── turno/
+│   ├── profesional/
+│   ├── pago/
+│   ├── preconsulta/
+│   └── notifications/
+├── video-call.tsx
+└── video-call-waiting.tsx
+
+src/                    # shared, non-route code
+├── api/                # API client and types
+├── components/         # shared UI
+├── contexts/           # Auth, Theme, Language
+├── hooks/
+├── i18n/               # translations (ES/EN)
+├── lib/
+└── theme/              # colors, spacing, typography
 ```
 
 ## API

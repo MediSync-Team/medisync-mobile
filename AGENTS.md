@@ -30,9 +30,19 @@ Read the exact versioned docs at https://docs.expo.dev/versions/v54.0.0/ before 
 - Deep link scheme: `medisync` (configured in `app.json`)
 
 ## Project structure
+
+Navigation is `expo-router` file-based under `app/` (there is **no** `src/navigation` or `src/screens`):
+
+- `app/` — route tree: `_layout.tsx` (root), `index.tsx`, `video-call.tsx`, `video-call-waiting.tsx`
+- `app/(auth)/` — `login`, `register`, `forgot-password`
+- `app/(app)/` — authenticated screens: `dashboard`, `turno/`, `profesional/`, `pago/`, `preconsulta/`, `notifications/`; the patient/professional/clinic/admin role decides which dashboard renders
+
+Shared (non-route) code lives in `src/`:
+
 - `src/api/` — client + endpoints (mirrors web API surface)
+- `src/components/` — shared UI
 - `src/contexts/` — Auth, Theme, Language
+- `src/hooks/` — shared hooks
 - `src/i18n/` — translations (ES/EN)
-- `src/navigation/` — `RootNavigator`, role-based tabs (`PatientTabs`, `ProfessionalTabs`, `ClinicTabs`, `AdminTabs`), `AuthStack`
-- `src/screens/` — `auth/`, `patient/`, `professional/`, `clinic/`, `admin/`
+- `src/lib/` — helpers
 - `src/theme/` — colors, spacing, typography
