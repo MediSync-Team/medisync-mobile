@@ -8,6 +8,7 @@ import type {
   Profesional,
   Disponibilidad,
   Slot,
+  TipoConsulta,
   TurnosPaginatedResponse,
   Turno,
   TurnoEstado,
@@ -137,12 +138,20 @@ export const api = {
       limit?: number;
     }) => fetchApi<ProfesionalesPaginatedResponse>(`/profesionales${query(params ?? {})}`),
     getById: (id: string) => fetchApi<Profesional>(`/profesionales/${id}`),
-    getSlots: (id: string, fecha: string, modalidad: 'PRESENCIAL' | 'VIRTUAL') =>
-      fetchApi<Slot[]>(`/profesionales/${id}/slots-disponibles${query({ fecha, modalidad })}`),
+    getSlots: (id: string, fecha: string, modalidad: 'PRESENCIAL' | 'VIRTUAL', tipoConsultaId?: string) =>
+      fetchApi<Slot[]>(`/profesionales/${id}/slots-disponibles${query({ fecha, modalidad, tipoConsultaId })}`),
     crearDisponibilidad: (id: string, data: { diaSemana: number; horaInicio: string; horaFin: string; modalidad: 'PRESENCIAL' | 'VIRTUAL' | 'AMBOS'; lugarAtencion?: string }) =>
       fetchApi<Disponibilidad>(`/profesionales/${id}/disponibilidad`, { method: 'POST', body: JSON.stringify(data) }),
     eliminarDisponibilidad: (id: string, dispId: string) =>
       fetchApi<void>(`/profesionales/${id}/disponibilidad/${dispId}`, { method: 'DELETE' }),
+    getTiposConsulta: (id: string) =>
+      fetchApi<TipoConsulta[]>(`/profesionales/${id}/tipos-consulta`),
+    crearTipoConsulta: (id: string, data: { nombre: string; duracionMin: number; precio?: number | null; color?: string | null; orden?: number }) =>
+      fetchApi<TipoConsulta>(`/profesionales/${id}/tipos-consulta`, { method: 'POST', body: JSON.stringify(data) }),
+    actualizarTipoConsulta: (id: string, tipoId: string, data: { nombre: string; duracionMin: number; precio?: number | null; color?: string | null; orden?: number }) =>
+      fetchApi<TipoConsulta>(`/profesionales/${id}/tipos-consulta/${tipoId}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    eliminarTipoConsulta: (id: string, tipoId: string) =>
+      fetchApi<{ deleted: boolean }>(`/profesionales/${id}/tipos-consulta/${tipoId}`, { method: 'DELETE' }),
   },
   turnos: {
     getMisTurnos: (params?: { tipo?: 'proximos' | 'pasados'; estado?: string; page?: number; limit?: number }) =>
@@ -152,7 +161,7 @@ export const api = {
     getById: (id: string) => fetchApi<Turno>(`/turnos/${id}`),
     updateEstado: (id: string, estado: TurnoEstado, notasCancelacion?: string) =>
       fetchApi<Turno>(`/turnos/${id}`, { method: 'PATCH', body: JSON.stringify({ estado, notasCancelacion }) }),
-    reservar: (data: { profesionalId: string; fechaHora: string; modalidad: 'PRESENCIAL' | 'VIRTUAL' }) =>
+    reservar: (data: { profesionalId: string; fechaHora: string; modalidad: 'PRESENCIAL' | 'VIRTUAL'; tipoConsultaId?: string }) =>
       fetchApi<{ turno: Turno; linkPago: null }>('/turnos/reservar', { method: 'POST', body: JSON.stringify(data) }),
     reprogramar: (id: string, data: { fechaHora: string; modalidad?: 'PRESENCIAL' | 'VIRTUAL' }) =>
       fetchApi<Turno>(`/turnos/${id}/reprogramar`, { method: 'POST', body: JSON.stringify(data) }),

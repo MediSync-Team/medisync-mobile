@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, RefreshControl, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { AppHeader, ErrorNotice, PrimaryButton, Spinner, getSharedStyles } from '../../../../src/components/ui';
-import { api, type Disponibilidad, type BloqueoDisponibilidad } from '../../../../src/lib/api';
+import { api, type Disponibilidad, type BloqueoDisponibilidad, type TipoConsulta } from '../../../../src/lib/api';
 import { useAuth } from '../../../../src/lib/auth-context';
 import { useTheme } from '../../../../src/contexts/ThemeContext';
 import { useLang } from '../../../../src/i18n/context';
@@ -10,6 +10,7 @@ import { spacing, borderRadius, fontSize } from '../../../../src/theme';
 const DAYS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 const DAYS_SHORT = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 const BLOCKOUT_REASONS = ['Vacaciones', 'Feriado', 'Capacitación', 'Personal', 'Otro'];
+const DURACIONES = [15, 20, 30, 45, 60, 90];
 
 export default function ProfesionalDisponibilidad() {
   const { colors } = useTheme();
@@ -20,8 +21,15 @@ export default function ProfesionalDisponibilidad() {
 
   const [disponibilidades, setDisponibilidades] = useState<Disponibilidad[]>([]);
   const [bloqueos, setBloqueos] = useState<BloqueoDisponibilidad[]>([]);
+  const [tipos, setTipos] = useState<TipoConsulta[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [newTipoNombre, setNewTipoNombre] = useState('');
+  const [newTipoDuracion, setNewTipoDuracion] = useState(30);
+  const [newTipoPrecio, setNewTipoPrecio] = useState('');
+  const [savingTipo, setSavingTipo] = useState(false);
+  const [deletingTipo, setDeletingTipo] = useState<string | null>(null);
 
   const [newDia, setNewDia] = useState(1);
   const [newHoraInicio, setNewHoraInicio] = useState('09:00');
@@ -44,12 +52,14 @@ export default function ProfesionalDisponibilidad() {
     setLoading(true);
     setError(null);
     try {
-      const [profData, bloqueosData] = await Promise.all([
+      const [profData, bloqueosData, tiposData] = await Promise.all([
         api.profesionales.getById(professionalId),
         api.bloqueos.getMisBloqueos(),
+        api.profesionales.getTiposConsulta(professionalId),
       ]);
       setDisponibilidades(profData.disponibilidades || []);
       setBloqueos(bloqueosData);
+      setTipos(tiposData);
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common', 'error'));
     } finally {
@@ -95,6 +105,43 @@ export default function ProfesionalDisponibilidad() {
       Alert.alert('Error', err instanceof Error ? err.message : 'No se pudo eliminar el horario.');
     } finally {
       setDeletingDisp(null);
+    }
+  }
+
+  async function handleAddTipo() {
+    if (!professionalId) return;
+    if (!newTipoNombre.trim()) {
+      Alert.alert('Error', 'El nombre es requerido.');
+      return;
+    }
+    setSavingTipo(true);
+    try {
+      await api.profesionales.crearTipoConsulta(professionalId, {
+        nombre: newTipoNombre.trim(),
+        duracionMin: newTipoDuracion,
+        precio: newTipoPrecio.trim() === '' ? null : Number(newTipoPrecio),
+      });
+      setNewTipoNombre('');
+      setNewTipoDuracion(30);
+      setNewTipoPrecio('');
+      await load();
+    } catch (err) {
+      Alert.alert('Error', err instanceof Error ? err.message : 'No se pudo agregar el tipo de consulta.');
+    } finally {
+      setSavingTipo(false);
+    }
+  }
+
+  async function handleDeleteTipo(id: string) {
+    if (!professionalId) return;
+    setDeletingTipo(id);
+    try {
+      await api.profesionales.eliminarTipoConsulta(professionalId, id);
+      await load();
+    } catch (err) {
+      Alert.alert('Error', err instanceof Error ? err.message : 'No se pudo eliminar el tipo de consulta.');
+    } finally {
+      setDeletingTipo(null);
     }
   }
 
@@ -265,6 +312,82 @@ export default function ProfesionalDisponibilidad() {
           </View>
 
           <PrimaryButton title={savingDisp ? t('common', 'loading') : `+ ${t('professional', 'addAvailability')}`} onPress={handleAddDisp} disabled={savingDisp} />
+        </View>
+
+        {/* ── Tipos de consulta (duración variable) ── */}
+        <Text style={[s.title, { fontSize: fontSize.lg, marginTop: spacing.lg }]}>Tipos de consulta</Text>
+
+        {tipos.length === 0 && !loading ? (
+          <View style={[s.row, { justifyContent: 'center', padding: spacing.lg }]}>
+            <Text style={s.subtitle}>Sin tipos de consulta. Agregá uno para ofrecer distintas duraciones.</Text>
+          </View>
+        ) : (
+          tipos.map(tipo => (
+            <View
+              key={tipo.id}
+              style={{
+                flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
+                backgroundColor: colors.surface, borderRadius: borderRadius.lg,
+                padding: spacing.md, borderWidth: 1, borderColor: colors.border,
+              }}
+            >
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: fontSize.sm, fontWeight: '600', color: colors.text }}>{tipo.nombre}</Text>
+                <Text style={{ fontSize: fontSize.xs, color: colors.textSecondary }}>
+                  {tipo.duracionMin} min{tipo.precio != null && tipo.precio > 0 ? ` · $${Number(tipo.precio).toLocaleString()}` : ''}
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => handleDeleteTipo(tipo.id)}
+                disabled={deletingTipo === tipo.id}
+                style={{ padding: spacing.sm }}
+              >
+                <Text style={{ fontSize: fontSize.lg, color: deletingTipo === tipo.id ? colors.textSecondary : colors.error }}>🗑</Text>
+              </TouchableOpacity>
+            </View>
+          ))
+        )}
+
+        {/* Add tipo de consulta */}
+        <View style={{
+          backgroundColor: colors.surface, borderRadius: borderRadius.lg,
+          padding: spacing.md, borderWidth: 1, borderColor: colors.border, gap: spacing.sm,
+        }}>
+          <Text style={{ fontSize: fontSize.sm, fontWeight: '700', color: colors.text }}>Agregar tipo de consulta</Text>
+
+          <View>
+            <Text style={s.label}>Nombre</Text>
+            <TextInput style={s.input} value={newTipoNombre} onChangeText={setNewTipoNombre} placeholder="Ej: Primera vez" placeholderTextColor={colors.textSecondary} />
+          </View>
+
+          <View>
+            <Text style={s.label}>Duración</Text>
+            <View style={[s.row, { flexWrap: 'wrap' }]}>
+              {DURACIONES.map(min => (
+                <TouchableOpacity
+                  key={min}
+                  onPress={() => setNewTipoDuracion(min)}
+                  style={{
+                    paddingHorizontal: spacing.md, paddingVertical: spacing.xs,
+                    borderRadius: borderRadius.md, marginRight: 4, marginBottom: 4,
+                    backgroundColor: newTipoDuracion === min ? colors.primary : colors.surface,
+                    borderWidth: 1, borderColor: newTipoDuracion === min ? colors.primary : colors.border,
+                  }}
+                >
+                  <Text style={{ fontSize: fontSize.xs, fontWeight: '600', color: newTipoDuracion === min ? colors.white : colors.text }}>
+                    {min} min
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          <View>
+            <Text style={s.label}>Precio (opcional)</Text>
+            <TextInput style={s.input} value={newTipoPrecio} onChangeText={setNewTipoPrecio} keyboardType="numeric" placeholder="—" placeholderTextColor={colors.textSecondary} />
+          </View>
+
+          <PrimaryButton title={savingTipo ? t('common', 'loading') : '+ Agregar tipo de consulta'} onPress={handleAddTipo} disabled={savingTipo} />
         </View>
 
         {/* ── Block-outs ── */}

@@ -3,7 +3,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Modal, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { AppHeader, EmptyState, ErrorNotice, PrimaryButton, SecondaryButton, Spinner, getSharedStyles } from '../../../src/components/ui';
-import { api, type Profesional, type Slot } from '../../../src/lib/api';
+import { api, type Profesional, type Slot, type TipoConsulta } from '../../../src/lib/api';
 import { todayDate } from '../../../src/lib/date';
 import { fullName } from '../../../src/lib/utils';
 import { spacing, borderRadius, fontSize } from '../../../src/theme';
@@ -15,6 +15,8 @@ export default function ProfesionalProfileScreen() {
   const s = getSharedStyles(colors);
   const [profesional, setProfesional] = useState<Profesional | null>(null);
   const [slots, setSlots] = useState<Slot[]>([]);
+  const [tipos, setTipos] = useState<TipoConsulta[]>([]);
+  const [tipoId, setTipoId] = useState<string | null>(null);
   const [fecha, setFecha] = useState(todayDate());
   const [modalidad, setModalidad] = useState<'PRESENCIAL' | 'VIRTUAL'>('VIRTUAL');
   const [selected, setSelected] = useState<string | null>(null);
@@ -32,18 +34,21 @@ export default function ProfesionalProfileScreen() {
     setLoading(true);
     setError(null);
     try {
-      const [prof, available] = await Promise.all([
+      const [prof, available, tiposList] = await Promise.all([
         api.profesionales.getById(id),
-        api.profesionales.getSlots(id, fecha, modalidad),
+        api.profesionales.getSlots(id, fecha, modalidad, tipoId ?? undefined),
+        api.profesionales.getTiposConsulta(id),
       ]);
       setProfesional(prof);
       setSlots(available.filter((slot) => slot.disponible));
+      setTipos(tiposList);
+      if (tiposList.length > 0 && !tipoId) setTipoId(tiposList[0].id);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo cargar el profesional.');
     } finally {
       setLoading(false);
     }
-  }, [fecha, id, modalidad]);
+  }, [fecha, id, modalidad, tipoId]);
 
   useEffect(() => {
     load();
@@ -72,7 +77,7 @@ export default function ProfesionalProfileScreen() {
       const [yr, mo, dy] = fecha.split('-').map(Number);
       const [hh, mi] = selected.split(':').map(Number);
       const fechaHora = new Date(yr, mo - 1, dy, hh, mi, 0).toISOString();
-      const result = await api.turnos.reservar({ profesionalId: id, fechaHora, modalidad });
+      const result = await api.turnos.reservar({ profesionalId: id, fechaHora, modalidad, tipoConsultaId: tipoId ?? undefined });
       const preference = await api.pagos.crearPreferencia({ turnoId: result.turno.id });
       if (preference.initPoint) {
         await WebBrowser.openBrowserAsync(preference.initPoint);
@@ -101,6 +106,25 @@ export default function ProfesionalProfileScreen() {
             <Text style={s.subtitle}>{profesional.especialidad?.nombre}</Text>
             <Text style={s.subtitle}>{profesional.bio || 'Sin bio cargada.'}</Text>
             <Text style={{ color: colors.primary, fontWeight: '800' }}>${Number(profesional.precioConsulta || 0).toLocaleString()}</Text>
+            {tipos.length > 0 ? (
+              <>
+                <Text style={s.label}>Tipo de consulta</Text>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
+                  {tipos.map((tipo) => (
+                    <TouchableOpacity
+                      key={tipo.id}
+                      onPress={() => { setTipoId(tipo.id); setSelected(null); }}
+                      style={{ padding: spacing.md, borderRadius: borderRadius.md, backgroundColor: tipoId === tipo.id ? colors.primary : colors.surface, borderWidth: 1, borderColor: colors.border }}
+                    >
+                      <Text style={{ color: tipoId === tipo.id ? colors.white : colors.text, fontWeight: '700' }}>{tipo.nombre}</Text>
+                      <Text style={{ color: tipoId === tipo.id ? colors.white : colors.textSecondary, fontSize: fontSize.sm }}>
+                        {tipo.duracionMin} min{tipo.precio != null && tipo.precio > 0 ? ` · $${Number(tipo.precio).toLocaleString()}` : ''}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </>
+            ) : null}
             <View style={s.row}>
               {(['VIRTUAL', 'PRESENCIAL'] as const).map((item) => (
                 <TouchableOpacity key={item} onPress={() => setModalidad(item)} style={{ flex: 1, padding: spacing.md, borderRadius: borderRadius.md, backgroundColor: modalidad === item ? colors.primary : colors.surface, borderWidth: 1, borderColor: colors.border }}>
