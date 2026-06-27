@@ -20,7 +20,7 @@ export default function Index() {
     case 'PROFESIONAL':
       return <Redirect href="/dashboard/profesional" />;
     case 'PACIENTE':
-      return <Redirect href="/dashboard/paciente" />;
+      return <Redirect href="/(app)/(tabs)/inicio" />;
     default:
       return <Redirect href="/login" />;
   }

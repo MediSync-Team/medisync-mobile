@@ -10,6 +10,7 @@ import type {
   Slot,
   TipoConsulta,
   TurnosPaginatedResponse,
+  HistorialPaginatedResponse,
   Turno,
   TurnoEstado,
   PreconsultaTurno,
@@ -18,6 +19,7 @@ import type {
   PagoPreferenciaResponse,
   InAppNotification,
   StatsResponse,
+  Paciente,
   PacienteStats,
   ListaEsperaItem,
   BloqueoDisponibilidad,
@@ -170,6 +172,8 @@ export const api = {
       fetchApi<PreconsultaTurno>(`/turnos/${id}/preconsulta`, { method: 'PUT', body: JSON.stringify(data) }),
     getVideoToken: (id: string) =>
       fetchApi<{ ticket: string; roomId: string; iceServers?: IceServer[] }>(`/turnos/${id}/video-token`),
+    miHistorial: (params?: { page?: number; limit?: number }) =>
+      fetchApi<HistorialPaginatedResponse>(`/turnos/mi-historial${query(params ?? {})}`),
   },
   pagos: {
     crearPreferencia: (data: { turnoId: string; cuponCodigo?: string }) =>
@@ -187,8 +191,11 @@ export const api = {
   pacientes: {
     getMisStats: () => fetchApi<PacienteStats>('/pacientes/mis-stats'),
     getMisRecetas: () =>
-      fetchApi<{ id: string; turnoId: string; fechaHora: string; receta: { diagnostico: string; medicamentos?: string | null; indicaciones: string }; profesional: { nombre: string; apellido: string; especialidad: string } }[]>('/pacientes/mis-recetas'),
-    getMisCertificados: () => fetchApi<{ id: string; turnoId: string; fechaHora: string; certificado: { id: string; tipo: string; emitidaAt: string }; profesional: { nombre: string; apellido: string; especialidad?: { nombre: string } | string } }[]>('/pacientes/mis-certificados'),
+      fetchApi<{ recetas: { id: string; turnoId: string; fechaHora: string; receta: { diagnostico: string; medicamentos?: string | null; indicaciones: string }; profesional: { nombre: string; apellido: string; especialidad: string } }[] }>('/pacientes/mis-recetas'),
+    getMisCertificados: () => fetchApi<{ certificados: { id: string; turnoId: string; fechaHora: string; certificado: { id: string; tipo: string; emitidaAt: string }; profesional: { nombre: string; apellido: string; especialidad?: { nombre: string } | string } }[] }>('/pacientes/mis-certificados'),
+    getPerfil: () => fetchApi<Paciente>('/pacientes/perfil'),
+    updatePerfil: (data: Partial<Paciente>) =>
+      fetchApi<Paciente>('/pacientes/perfil', { method: 'PUT', body: JSON.stringify(data) }),
   },
   listaEspera: {
     misSuscripciones: () => fetchApi<ListaEsperaItem[]>('/lista-espera/mis-suscripciones'),
@@ -233,6 +240,9 @@ export const api = {
       fetchApi<{ resenas: Resena[]; stats: ResenasStats; pagination: { page: number; totalPages: number; total: number } }>(
         '/resenas/mis-resenas' + query(params ?? {})
       ),
+    getMiResena: (turnoId: string) => fetchApi<Resena | null>(`/resenas/mi-resena/${turnoId}`),
+    crear: (data: { turnoId: string; rating: number; comentario?: string }) =>
+      fetchApi<Resena>('/resenas', { method: 'POST', body: JSON.stringify(data) }),
     responder: (id: string, respuesta: string) =>
       fetchApi<Resena>(`/resenas/${id}/respuesta`, { method: 'PATCH', body: JSON.stringify({ respuesta }) }),
     borrarRespuesta: (id: string) => fetchApi<Resena>(`/resenas/${id}/respuesta`, { method: 'DELETE' }),

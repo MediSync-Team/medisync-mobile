@@ -55,12 +55,13 @@ export function PrimaryButton({
   );
 }
 
-export function SecondaryButton({ title, onPress }: { title: string; onPress: () => void }) {
+export function SecondaryButton({ title, onPress, disabled }: { title: string; onPress: () => void; disabled?: boolean }) {
   const { colors } = useTheme();
   return (
     <TouchableOpacity
-      style={[styles.secondaryButton, { borderColor: colors.border, backgroundColor: colors.surface }]}
+      style={[styles.secondaryButton, { borderColor: colors.border, backgroundColor: colors.surface }, disabled && styles.disabled]}
       onPress={onPress}
+      disabled={disabled}
     >
       <Text style={[styles.secondaryText, { color: colors.primary }]}>{title}</Text>
     </TouchableOpacity>
@@ -116,10 +117,10 @@ export function AppHeader({ showBack = false, simple = false }: { showBack?: boo
   const { user } = useAuth();
   const { unread } = useNotifications();
   const { colors } = useTheme();
-  const profileRoute = user?.rol === 'PROFESIONAL' ? '/dashboard/profesional/perfil' : '/dashboard/paciente/perfil';
+  const profileRoute = user?.rol === 'PROFESIONAL' ? '/dashboard/profesional/perfil' : '/(app)/(tabs)/perfil';
 
   return (
-    <View style={[{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md, backgroundColor: 'transparent' }]}>
+    <View style={[{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'transparent' }]}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
         {showBack ? (
           <TouchableOpacity onPress={() => router.back()}>
@@ -154,6 +155,7 @@ export function getSharedStyles(c: typeof import('../theme').colors) {
   return {
     screen: { flex: 1, backgroundColor: c.background } as const,
     content: { padding: spacing.md, paddingTop: Platform.OS === 'ios' ? spacing.xxl : spacing.lg, gap: spacing.md } as const,
+    contentTab: { padding: spacing.md, paddingTop: spacing.md, gap: spacing.md } as const,
     title: { fontSize: fontSize.xxl, fontWeight: '700' as const, color: c.text },
     subtitle: { fontSize: fontSize.md, color: c.textSecondary },
     input: {
