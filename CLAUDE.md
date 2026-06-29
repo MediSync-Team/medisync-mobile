@@ -114,10 +114,11 @@ See `../medisync-api/PRODUCTION_NOTIFICATIONS.md` for full flows. Smoke test (ap
 
 ## Videocall dev constraints
 
-- Uses native WebRTC (`react-native-webrtc`) — **cannot run in Expo Go**, need `npx expo run:ios` / `run:android` dev build.
-- Signaling is **in-memory** (`../medisync-api/src/services/video-room.service.ts`): single API instance required, API restart drops all active calls.
-- Join endpoint (`GET /turnos/:id/video-token`) only issues tickets for VIRTUAL turnos in `RESERVADO`/`CONFIRMADO` state within the join window (15 min before → end of appointment). Returns `403 OUTSIDE_JOIN_WINDOW` otherwise — seed/reschedule turno to "now" when testing.
-- ICE defaults to STUN-only (same-network only). Cross-NAT needs `CLOUDFLARE_TURN_TOKEN_ID` + `CLOUDFLARE_TURN_API_TOKEN`.
+- Media runs over **LiveKit (SFU)** via `@livekit/react-native` (+ `@livekit/react-native-webrtc`) — **cannot run in Expo Go**, need a dev build (`npx expo run:ios` / `run:android`) or EAS build. `registerGlobals()` is called once at the top of `app/_layout.tsx`.
+- Native setup comes from two Expo config plugins in `app.json` (`@livekit/react-native-expo-plugin`, `@config-plugins/react-native-webrtc`). The `android/`/`ios/` projects are **committed**, so after changing video deps/config you must run `npx expo prebuild --clean` to regenerate them, then rebuild (EAS/dev build) — otherwise the plugin changes don't apply.
+- The API is **stateless for video**: `GET /turnos/:id/video-token` returns `{ token, url, roomName }` (a LiveKit access token + server url), still gated to VIRTUAL turnos in `RESERVADO`/`CONFIRMADO` within the join window (15 min before → end). Returns `403 OUTSIDE_JOIN_WINDOW` otherwise — reschedule a turno to "now" when testing. API restarts no longer drop calls (media lives on the SFU).
+- LiveKit bundles TURN, so cross-NAT works without the old `CLOUDFLARE_TURN_*` STUN-only setup. The API needs `LIVEKIT_URL` / `LIVEKIT_API_KEY` / `LIVEKIT_API_SECRET`; the mobile app holds **no** LiveKit secrets (it only receives the token).
+- In-call chat + file sharing (`src/hooks/useVideoCall.ts`, `app/video-call.tsx`) is persisted to the turno (`POST /chat/:turnoId`, `POST /archivos/:turnoId`) and broadcast live over the LiveKit data channel (topic `chat`). The conversation + files stay viewable afterwards via the chat screen (`app/(app)/chat/[turnoId].tsx`), which is **read-only** once the turno is no longer active.
 
 ## Version gotchas (these break naively-written code)
 

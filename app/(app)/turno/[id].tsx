@@ -120,6 +120,7 @@ export default function TurnoDetailScreen() {
               }}
             />
           ) : null}
+          <SecondaryButton title="Chat" onPress={() => router.push(`/chat/${turno.id}`)} />
           <Text style={s.label}>Reprogramar</Text>
           <TextInput style={s.input} value={date} onChangeText={(d) => { setDate(d); setSelectedSlot(null); }} placeholder="YYYY-MM-DD" />
           {loadingSlots ? <Spinner label="Cargando horarios..." /> : null}

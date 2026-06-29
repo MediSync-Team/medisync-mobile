@@ -26,7 +26,9 @@
       "expo-secure-store",
       "expo-localization",
       "expo-web-browser",
-      "expo-router"
+      "expo-router",
+      "@livekit/react-native-expo-plugin",
+      "@config-plugins/react-native-webrtc"
     ],
     "android": {
       "adaptiveIcon": {

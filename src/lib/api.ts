@@ -29,7 +29,8 @@ import type {
   Cupon,
   TipoDescuento,
   Pago,
-  IceServer,
+  ArchivoTurno,
+  ChatMensaje,
 } from '../api/types';
 
 export type * from '../api/types';
@@ -171,7 +172,7 @@ export const api = {
     updatePreconsulta: (id: string, data: PreconsultaInput) =>
       fetchApi<PreconsultaTurno>(`/turnos/${id}/preconsulta`, { method: 'PUT', body: JSON.stringify(data) }),
     getVideoToken: (id: string) =>
-      fetchApi<{ ticket: string; roomId: string; iceServers?: IceServer[] }>(`/turnos/${id}/video-token`),
+      fetchApi<{ token: string; url: string; roomName: string }>(`/turnos/${id}/video-token`),
     miHistorial: (params?: { page?: number; limit?: number }) =>
       fetchApi<HistorialPaginatedResponse>(`/turnos/mi-historial${query(params ?? {})}`),
   },
@@ -246,5 +247,26 @@ export const api = {
     responder: (id: string, respuesta: string) =>
       fetchApi<Resena>(`/resenas/${id}/respuesta`, { method: 'PATCH', body: JSON.stringify({ respuesta }) }),
     borrarRespuesta: (id: string) => fetchApi<Resena>(`/resenas/${id}/respuesta`, { method: 'DELETE' }),
+  },
+
+  archivos: {
+    getByTurno: (turnoId: string) => fetchApi<ArchivoTurno[]>(`/archivos/turno/${turnoId}`),
+    // React Native FormData accepts a { uri, name, type } file descriptor (not a browser File).
+    subir: (turnoId: string, file: { uri: string; name: string; type: string }, tipo: string) => {
+      const formData = new FormData();
+      formData.append('archivo', { uri: file.uri, name: file.name, type: file.type } as unknown as Blob);
+      formData.append('tipo', tipo);
+      return fetchApi<ArchivoTurno>(`/archivos/${turnoId}`, { method: 'POST', body: formData });
+    },
+    eliminar: (id: string) => fetchApi<{ deleted: boolean }>(`/archivos/${id}`, { method: 'DELETE' }),
+  },
+
+  chat: {
+    getUnreadGlobal: () => fetchApi<{ count: number }>('/chat/unread-global'),
+    getUnread: (turnoId: string) => fetchApi<{ count: number }>(`/chat/${turnoId}/unread`),
+    getMensajes: (turnoId: string) =>
+      fetchApi<{ id: string; remitenteId: string; contenido: string; createdAt: string }[]>(`/chat/${turnoId}`),
+    enviar: (turnoId: string, contenido: string) =>
+      fetchApi<ChatMensaje>(`/chat/${turnoId}`, { method: 'POST', body: JSON.stringify({ contenido }) }),
   },
 };

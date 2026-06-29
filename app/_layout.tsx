@@ -2,6 +2,15 @@ import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Linking, Text, View } from 'react-native';
 import { Component, useEffect } from 'react';
+import { registerGlobals } from '@livekit/react-native';
+
+// Set up the WebRTC globals required by LiveKit (and the TextEncoder/TextDecoder
+// polyfills the in-call chat relies on). Must run once, before any LiveKit usage.
+try {
+  registerGlobals();
+} catch {
+  // no-op on platforms without the native WebRTC module (e.g. web)
+}
 
 class ErrorBoundary extends Component<{ children: React.ReactNode }, { error: Error | null }> {
   constructor(props: { children: React.ReactNode }) {

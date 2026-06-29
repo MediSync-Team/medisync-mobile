@@ -180,6 +180,11 @@ export default function TurnosScreen() {
                 ) : null}
               </View>
             ) : null}
+            {(!isProximos || turno.estado === 'CANCELADO') ? (
+              <View style={s.row}>
+                <SecondaryButton title="Ver chat" onPress={() => router.push(`/chat/${turno.id}`)} />
+              </View>
+            ) : null}
           </View>
         ))}
         {totalPages > 1 ? (
@@ -307,6 +312,7 @@ export default function TurnosScreen() {
 
             {expandedHistorial === item.id ? (
               <View style={{ marginTop: spacing.md, gap: spacing.md, paddingTop: spacing.md, borderTopWidth: 1, borderTopColor: colors.border }}>
+                <SecondaryButton title="Ver chat" onPress={() => router.push(`/chat/${item.id}`)} />
                 {/* Evolución clínica */}
                 {item.evolucion?.contenido ? (
                   <View>
