@@ -150,7 +150,7 @@ export interface Turno {
   fechaHora: string;
   duracionMin: number;
   estado: TurnoEstado;
-  modalidad: 'PRESENCIAL' | 'VIRTUAL';
+  modalidad: 'PRESENCIAL' | 'VIRTUAL' | 'AMBOS';
   motivo?: string;
   precio: number;
   cuponId?: string;

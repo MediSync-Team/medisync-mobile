@@ -31,5 +31,7 @@ export function estadoColor(estado: TurnoEstado) {
 }
 
 export function canJoinVideoCall(turno: Turno) {
-  return turno.modalidad === 'VIRTUAL' && (turno.estado === 'RESERVADO' || turno.estado === 'CONFIRMADO');
+  const modalidad = turno.modalidad?.toUpperCase();
+  const esVirtual = modalidad === 'VIRTUAL' || modalidad === 'AMBOS';
+  return esVirtual && (turno.estado === 'RESERVADO' || turno.estado === 'CONFIRMADO');
 }

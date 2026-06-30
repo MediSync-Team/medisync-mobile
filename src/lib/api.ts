@@ -141,7 +141,7 @@ export const api = {
       limit?: number;
     }) => fetchApi<ProfesionalesPaginatedResponse>(`/profesionales${query(params ?? {})}`),
     getById: (id: string) => fetchApi<Profesional>(`/profesionales/${id}`),
-    getSlots: (id: string, fecha: string, modalidad: 'PRESENCIAL' | 'VIRTUAL', tipoConsultaId?: string) =>
+    getSlots: (id: string, fecha: string, modalidad: 'PRESENCIAL' | 'VIRTUAL' | 'AMBOS', tipoConsultaId?: string) =>
       fetchApi<Slot[]>(`/profesionales/${id}/slots-disponibles${query({ fecha, modalidad, tipoConsultaId })}`),
     crearDisponibilidad: (id: string, data: { diaSemana: number; horaInicio: string; horaFin: string; modalidad: 'PRESENCIAL' | 'VIRTUAL' | 'AMBOS'; lugarAtencion?: string }) =>
       fetchApi<Disponibilidad>(`/profesionales/${id}/disponibilidad`, { method: 'POST', body: JSON.stringify(data) }),
@@ -166,7 +166,7 @@ export const api = {
       fetchApi<Turno>(`/turnos/${id}`, { method: 'PATCH', body: JSON.stringify({ estado, notasCancelacion }) }),
     reservar: (data: { profesionalId: string; fechaHora: string; modalidad: 'PRESENCIAL' | 'VIRTUAL'; tipoConsultaId?: string }) =>
       fetchApi<{ turno: Turno; linkPago: null }>('/turnos/reservar', { method: 'POST', body: JSON.stringify(data) }),
-    reprogramar: (id: string, data: { fechaHora: string; modalidad?: 'PRESENCIAL' | 'VIRTUAL' }) =>
+    reprogramar: (id: string, data: { fechaHora: string; modalidad?: 'PRESENCIAL' | 'VIRTUAL' | 'AMBOS' }) =>
       fetchApi<Turno>(`/turnos/${id}/reprogramar`, { method: 'POST', body: JSON.stringify(data) }),
     getPreconsulta: (id: string) => fetchApi<PreconsultaTurno>(`/turnos/${id}/preconsulta`),
     updatePreconsulta: (id: string, data: PreconsultaInput) =>
