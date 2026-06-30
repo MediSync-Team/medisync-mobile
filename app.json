@@ -28,7 +28,8 @@
       "expo-web-browser",
       "expo-router",
       "@livekit/react-native-expo-plugin",
-      "@config-plugins/react-native-webrtc"
+      "@config-plugins/react-native-webrtc",
+      "./plugins/with-fmt-podfile-fix"
     ],
     "android": {
       "adaptiveIcon": {

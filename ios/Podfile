@@ -53,20 +53,46 @@ target 'MediSync' do
   )
 
   post_install do |installer|
-    react_native_post_install(
+    
+
+  # Fix fmt compilation with Xcode 16+ (consteval errors)
+  installer.pods_project.targets.each do |target|
+    if target.name == 'fmt'
+      target.build_configurations.each do |config|
+        next unless config.base_configuration_reference
+        path = config.base_configuration_reference.real_path
+        next unless path && File.exist?(path)
+        lines = File.readlines(path)
+        lines.map! do |line|
+          if line.start_with?('CLANG_CXX_LANGUAGE_STANDARD')
+            "CLANG_CXX_LANGUAGE_STANDARD = c++17\n"
+          else
+            line
+          end
+        end
+        File.write(path, lines.join)
+      end
+      # Patch fmt/base.h directly to disable consteval
+      base_h = File.join(installer.sandbox.pod_dir('fmt'), 'include', 'fmt', 'base.h')
+      if File.exist?(base_h)
+        content = File.read(base_h)
+        unless content.include?('FMT_CONSTEVAL  // disabled by plugin')
+          content.gsub!(
+            '#  define FMT_CONSTEVAL consteval',
+            '#  define FMT_CONSTEVAL  // disabled by plugin'
+          )
+          File.write(base_h, content)
+        end
+      end
+    end
+  end
+
+
+react_native_post_install(
       installer,
       config[:reactNativePath],
       :mac_catalyst_enabled => false,
       :ccache_enabled => ccache_enabled?(podfile_properties),
     )
-
-    # Fix fmt compilation with Xcode 16+ (consteval errors in fmt 5.x)
-    installer.pods_project.targets.each do |target|
-      if target.name == 'fmt'
-        target.build_configurations.each do |config|
-          config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
-        end
-      end
-    end
   end
 end
